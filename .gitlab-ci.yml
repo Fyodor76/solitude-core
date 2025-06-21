@@ -43,8 +43,8 @@ deploy_to_server:
     - apk add --no-cache openssh-client rsync
     # Настраиваем SSH
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519  # Создаем файл с приватным ключом
-    - chmod 600 ~/.ssh/id_ed25519  # Выставляем правильные права
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa  
+    - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts  # Добавляем хост в known_hosts
   script:
     # Копируем файлы на сервер:
