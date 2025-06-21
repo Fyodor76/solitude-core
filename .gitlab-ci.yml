@@ -1,10 +1,64 @@
 stages:
-  - test
+  - install
+  - build
+  - deploy
 
-test-runner:
-  stage: test
+cache:
+  paths:
+    - node_modules/  # Кэшируем node_modules для ускорения последующих сборок
+
+variables:
+  SERVER_DIR: /home/quizzerhub-core  # Рабочая директория на сервере
+  DOCKER_COMPOSE_FILE: docker-compose.prod.yml  # Файл docker-compose для production
+
+install_dependencies:
+  stage: install
+  image: node:20  # Используем официальный образ Node.js 20
   script:
-    - node -v
-    - echo "🔥 Runner работает, всё чётко!"
+    - yarn install --frozen-lockfile  # Устанавливаем зависимости с фиксированными версиями
+  artifacts:
+    paths:
+      - node_modules/  # Сохраняем зависимости для следующих этапов
+  only:
+    - main  # Запускаем только для ветки main
+
+build_project:
+  stage: build
+  image: node:20
+  script:
+    - yarn build  # Собираем production-сборку проекта
+  artifacts:
+    paths:
+      - dist/  # Сохраняем собранные файлы
+  only:
+    - main
+
+deploy_to_server:
+  stage: deploy
+  image: docker:24  # Официальный образ Docker
+  services:
+    - docker:dind  # Docker-in-Docker для работы с контейнерами
+  before_script:
+    # Устанавливаем необходимые пакеты
+    - apk add --no-cache openssh-client rsync
+    # Настраиваем SSH
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519  # Создаем файл с приватным ключом
+    - chmod 600 ~/.ssh/id_ed25519  # Выставляем правильные права
+    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts  # Добавляем хост в known_hosts
+  script:
+    # Копируем файлы на сервер:
+    - rsync -avz --delete ./dist/ $SSH_USER@$SERVER_IP:$SERVER_DIR/dist  # Папка сборки
+    - rsync -avz docker-compose.prod.yml $SSH_USER@$SERVER_IP:$SERVER_DIR/  # Конфиг Docker
+    - rsync -avz package.json $SSH_USER@$SERVER_IP:$SERVER_DIR/  # Файл зависимостей
+    - rsync -avz yarn.lock $SSH_USER@$SERVER_IP:$SERVER_DIR/  # Лок-файл версий
+    
+    # Выполняем команды на сервере:
+    - ssh $SSH_USER@$SERVER_IP "
+      cd $SERVER_DIR &&
+      yarn install --production && 
+      docker-compose -f $DOCKER_COMPOSE_FILE down &&  
+      docker-compose -f $DOCKER_COMPOSE_FILE up -d --build 
+      "
   only:
     - main
