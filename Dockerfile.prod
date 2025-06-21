@@ -2,12 +2,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Копируем только необходимое
 COPY package.json yarn.lock ./
-COPY dist/ ./dist/
+RUN yarn install --production  
 
-# Ставим только production-зависимости
-RUN yarn install --production
+COPY dist/ ./dist/
 
 EXPOSE 8080
 CMD ["node", "dist/main.js"]
