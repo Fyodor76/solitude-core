@@ -1,0 +1,13 @@
+stages:
+  - test
+
+test-runner:
+  stage: test
+  tags:
+    - docker
+    - backend
+  script:
+    - node -v
+    - echo "🔥 Runner работает, всё чётко!"
+  only:
+    - main
