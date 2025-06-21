@@ -35,6 +35,32 @@ build_project:
 
 deploy_to_server:
   stage: deploy
+  image: docker:24
+  services:
+    - docker:dind
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+  script:
+    - rsync -avz --delete ./dist/ $SSH_USER@$SERVER_IP:$SERVER_DIR/dist
+    - rsync -avz docker-compose.prod.yml $SSH_USER@$SERVER_IP:$SERVER_DIR/
+    - rsync -avz package.json $SSH_USER@$SERVER_IP:$SERVER_DIR/
+    - rsync -avz yarn.lock $SSH_USER@$SERVER_IP:$SERVER_DIR/
+    
+    - ssh $SSH_USER@$SERVER_IP "
+      cd $SERVER_DIR &&
+      docker system prune -af &&
+      yarn install --production &&
+      docker compose -f $DOCKER_COMPOSE_FILE down --volumes --remove-orphans &&
+      docker compose -f $DOCKER_COMPOSE_FILE build --no-cache &&
+      docker compose -f $DOCKER_COMPOSE_FILE up -d --force-recreate
+      "
+  only:
+    - main
+  stage: deploy
   image: docker:24  # Официальный образ Docker
   services:
     - docker:dind  # Docker-in-Docker для работы с контейнерами
