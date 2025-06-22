@@ -38,7 +38,7 @@ export class Test extends Model<Test> {
   description: string;
 
   @Column({
-    type: DataType.JSONB, // Postgres JSONB
+    type: DataType.JSONB,
     allowNull: true,
   })
   settingsJson: object;

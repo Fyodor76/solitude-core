@@ -7,6 +7,9 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
 import { Test } from './tests/tests.entity';
 
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -20,5 +23,7 @@ import { Test } from './tests/tests.entity';
     TestsModule,
     UsersModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
