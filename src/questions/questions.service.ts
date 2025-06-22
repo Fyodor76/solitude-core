@@ -8,6 +8,10 @@ export class QuestionService {
     private questionModel: typeof Question,
   ) {}
 
+  async findByTestId(testId: string): Promise<Question[]> {
+    return this.questionModel.findAll({ where: { testId } });
+  }
+
   async create(createDto: any): Promise<Question> {
     return this.questionModel.create(createDto);
   }
