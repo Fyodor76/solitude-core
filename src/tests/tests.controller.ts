@@ -9,13 +9,15 @@ import {
 } from '@nestjs/common';
 import { TestService } from './tests.service';
 import { Test } from './tests.entity';
+import { CreateTestDto } from './dto/create-test.dto';
+import { UpdateTestDto } from './dto/update-test.dto';
 
 @Controller('tests')
 export class TestController {
   constructor(private readonly testService: TestService) {}
 
   @Post()
-  create(@Body() createDto: any): Promise<Test> {
+  create(@Body() createDto: CreateTestDto): Promise<Test> {
     return this.testService.create(createDto);
   }
 
@@ -30,7 +32,7 @@ export class TestController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateDto: any) {
+  update(@Param('id') id: string, @Body() updateDto: UpdateTestDto) {
     return this.testService.update(id, updateDto);
   }
 

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Question } from './questions.entity';
+import { CreateQuestionDto } from './dto/create-question.dto';
+
 @Injectable()
 export class QuestionService {
   constructor(
@@ -12,7 +14,7 @@ export class QuestionService {
     return this.questionModel.findAll({ where: { testId } });
   }
 
-  async create(createDto: any): Promise<Question> {
+  async create(createDto: CreateQuestionDto): Promise<Question> {
     return this.questionModel.create(createDto);
   }
 
