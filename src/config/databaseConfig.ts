@@ -14,5 +14,5 @@ export const createDatabaseConfig = (
   database: configService.get<string>('POSTGRES_DB'),
   models: [User, Test],
   autoLoadModels: true,
-  synchronize: false,
+  synchronize: true,
 });
