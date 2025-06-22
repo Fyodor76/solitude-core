@@ -6,13 +6,12 @@ import {
   ForeignKey,
   CreatedAt,
   UpdatedAt,
-  HasMany,
+  BelongsTo,
 } from 'sequelize-typescript';
-import { User } from '../users/user.entity';
-import { Question } from '../questions/questions.entity';
+import { Test } from '../tests/tests.entity';
 
-@Table({ tableName: 'tests' })
-export class Test extends Model<Test> {
+@Table({ tableName: 'questions' })
+export class Question extends Model<Question> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -20,33 +19,33 @@ export class Test extends Model<Test> {
   })
   id: string;
 
-  @ForeignKey(() => User)
+  @ForeignKey(() => Test)
   @Column({
     type: DataType.UUID,
     allowNull: false,
   })
-  ownerId: string;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  title: string;
+  testId: string;
 
   @Column({
     type: DataType.TEXT,
-    allowNull: true,
+    allowNull: false,
   })
-  description: string;
+  questionText: string;
 
   @Column({
     type: DataType.JSONB,
     allowNull: true,
   })
-  settingsJson: object;
+  options: object;
 
-  @HasMany(() => Question)
-  questions: Question[];
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  correctAnswer: string;
+
+  @BelongsTo(() => Test)
+  test: Test;
 
   @CreatedAt
   @Column({ field: 'created_at' })
