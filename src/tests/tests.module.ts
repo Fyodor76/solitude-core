@@ -3,7 +3,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Test } from './tests.entity';
 import { TestService } from './tests.service';
 import { TestController } from './tests.controller';
-import { QuestionsModule } from '../questions/question.module';
+import { QuestionsModule } from '../questions/questions.module';
 import { Question } from '../questions/questions.entity';
 
 @Module({

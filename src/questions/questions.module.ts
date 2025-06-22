@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Question } from './questions.entity';
-import { QuestionService } from './question.service';
+import { QuestionService } from './questions.service';
 
 @Module({
   imports: [SequelizeModule.forFeature([Question])],

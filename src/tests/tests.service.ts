@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Test } from './tests.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { NotFoundException } from '@nestjs/common';
-import { QuestionService } from 'src/questions/question.service';
+import { QuestionService } from 'src/questions/questions.service';
 @Injectable()
 export class TestService {
   constructor(
