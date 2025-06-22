@@ -9,6 +9,7 @@ import { Test } from './tests/tests.entity';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Question } from './questions/questions.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AppService } from './app.service';
         createDatabaseConfig(configService),
       inject: [ConfigService],
     }),
-    SequelizeModule.forFeature([User, Test]),
+    SequelizeModule.forFeature([User, Test, Question]),
     TestsModule,
     UsersModule,
   ],
