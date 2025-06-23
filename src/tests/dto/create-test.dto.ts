@@ -1,4 +1,3 @@
-// src/tests/dto/create-test.dto.ts
 import {
   IsUUID,
   IsString,

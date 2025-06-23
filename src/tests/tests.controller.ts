@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { TestService } from './tests.service';
 import { Test } from './tests.entity';
@@ -27,7 +28,7 @@ export class TestController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Test> {
+  findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<Test> {
     return this.testService.findById(id);
   }
 

@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { Test } from './tests.entity';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { NotFoundException } from '@nestjs/common';
+import { Test } from './tests.entity';
 import { QuestionService } from '../questions/questions.service';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
 import { CreateQuestionDto } from '../questions/dto/create-question.dto';
+import { tryCatch } from '../common/utils/try-catch.helper';
+import { throwNotFound } from '../common/exceptions/http-exception.helper';
+
 @Injectable()
 export class TestService {
+  private readonly logger = new Logger(TestService.name);
+
   constructor(
     @InjectModel(Test)
     private testModel: typeof Test,
@@ -17,7 +21,10 @@ export class TestService {
   async create(createDto: CreateTestDto): Promise<Test> {
     const { questions, ...testData } = createDto;
 
-    const test = await this.testModel.create(testData);
+    const test = await tryCatch(
+      () => this.testModel.create(testData),
+      'TestService:create',
+    );
 
     if (questions && questions.length) {
       await this.createQuestionsForTest(test.id, questions);
@@ -27,26 +34,36 @@ export class TestService {
   }
 
   async findAll(): Promise<Test[]> {
-    return this.testModel.findAll();
+    return tryCatch(() => this.testModel.findAll(), 'TestService:findAll');
   }
 
   async findById(id: string): Promise<Test> {
-    return this.testModel.findByPk(id);
+    const test = await tryCatch(
+      () => this.testModel.findByPk(id),
+      'TestService:findById',
+    );
+
+    if (!test) {
+      throwNotFound(`Test with id ${id} not found`);
+    }
+
+    return test;
   }
 
   async update(id: string, updateDto: UpdateTestDto): Promise<Test> {
     const { questions, ...testData } = updateDto;
 
-    const [affectedCount, [updatedTest]] = await this.testModel.update(
-      testData,
-      {
-        where: { id },
-        returning: true,
-      },
+    const [affectedCount, [updatedTest]] = await tryCatch(
+      () =>
+        this.testModel.update(testData, {
+          where: { id },
+          returning: true,
+        }),
+      'TestService:update',
     );
 
     if (affectedCount === 0) {
-      throw new NotFoundException(`Test with id ${id} not found`);
+      throwNotFound(`Test with id ${id} not found`);
     }
 
     if (questions && questions.length) {
@@ -58,16 +75,26 @@ export class TestService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.testModel.destroy({ where: { id } });
+    const deleted = await tryCatch(
+      () => this.testModel.destroy({ where: { id } }),
+      'TestService:remove',
+    );
+
+    if (!deleted) {
+      throwNotFound(`Test with id ${id} not found`);
+    }
   }
 
-  // Приватный метод для создания вопросов для теста
   private async createQuestionsForTest(
     testId: string,
     questions: CreateQuestionDto[],
   ): Promise<void> {
-    await Promise.all(
-      questions.map((q) => this.questionService.create({ ...q, testId })),
+    await tryCatch(
+      () =>
+        Promise.all(
+          questions.map((q) => this.questionService.create({ ...q, testId })),
+        ),
+      'TestService:createQuestionsForTest',
     );
   }
 }
