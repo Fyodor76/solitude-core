@@ -4,9 +4,9 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
   ParseUUIDPipe,
+  Put,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,12 +14,15 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { TestService } from './tests.service';
-import { Test } from './tests.entity';
-import { CreateTestDto } from './dto/create-test.dto';
-import { UpdateTestDto } from './dto/update-test.dto';
 import { TestSwaggerDocs } from './tests.swagger.constants';
+import {
+  RequestTestWithQuestionsDto,
+  UpdateRequestTestWithQuestionsDto,
+} from './dto/request-test.dto';
+import { ResponseTestWithQuestionsDto } from './dto/response-test.dto';
 
 @ApiTags('tests')
 @Controller('tests')
@@ -28,13 +31,15 @@ export class TestController {
 
   @Post()
   @ApiOperation({ summary: TestSwaggerDocs.create.summary })
-  @ApiBody({ type: CreateTestDto })
+  @ApiBody({ type: RequestTestWithQuestionsDto })
   @ApiResponse({
     status: 201,
     description: TestSwaggerDocs.create.responses[201].description,
-    type: Test,
+    type: ResponseTestWithQuestionsDto,
   })
-  async create(@Body() createDto: CreateTestDto): Promise<Test> {
+  async create(
+    @Body() createDto: RequestTestWithQuestionsDto,
+  ): Promise<ResponseTestWithQuestionsDto> {
     return this.testService.create(createDto);
   }
 
@@ -43,9 +48,13 @@ export class TestController {
   @ApiResponse({
     status: 200,
     description: TestSwaggerDocs.findAll.responses[200].description,
-    type: [Test],
+    type: [ResponseTestWithQuestionsDto],
+    schema: {
+      type: 'array',
+      items: { $ref: getSchemaPath(ResponseTestWithQuestionsDto) },
+    },
   })
-  async findAll(): Promise<Test[]> {
+  async findAll(): Promise<ResponseTestWithQuestionsDto[]> {
     return this.testService.findAll();
   }
 
@@ -55,24 +64,25 @@ export class TestController {
   @ApiResponse({
     status: 200,
     description: TestSwaggerDocs.findOne.responses[200].description,
-    type: Test,
   })
   @ApiResponse({
     status: 404,
     description: TestSwaggerDocs.findOne.responses[404].description,
+    type: ResponseTestWithQuestionsDto,
   })
-  async findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<Test> {
+  async findOne(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<ResponseTestWithQuestionsDto> {
     return this.testService.findById(id);
   }
 
   @Put(':id')
   @ApiOperation({ summary: TestSwaggerDocs.update.summary })
   @ApiParam(TestSwaggerDocs.update.param)
-  @ApiBody({ type: UpdateTestDto })
   @ApiResponse({
     status: 200,
     description: TestSwaggerDocs.update.responses[200].description,
-    type: Test,
+    type: UpdateRequestTestWithQuestionsDto,
   })
   @ApiResponse({
     status: 404,
@@ -80,8 +90,8 @@ export class TestController {
   })
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateDto: UpdateTestDto,
-  ): Promise<Test> {
+    @Body() updateDto: RequestTestWithQuestionsDto,
+  ): Promise<ResponseTestWithQuestionsDto> {
     return this.testService.update(id, updateDto);
   }
 
@@ -89,14 +99,20 @@ export class TestController {
   @ApiOperation({ summary: TestSwaggerDocs.remove.summary })
   @ApiParam(TestSwaggerDocs.remove.param)
   @ApiResponse({
-    status: 204,
-    description: TestSwaggerDocs.remove.responses[204].description,
+    status: 200,
+    description: `Successfully deleted test with id`,
+    schema: {
+      example: { id: '123e4567-e89b-12d3-a456-426614174002' },
+    },
   })
   @ApiResponse({
     status: 404,
     description: TestSwaggerDocs.remove.responses[404].description,
   })
-  async remove(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
-    return this.testService.remove(id);
+  async remove(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<{ id: string }> {
+    const deletedId = await this.testService.remove(id);
+    return { id: deletedId };
   }
 }

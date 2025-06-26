@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -19,4 +20,8 @@ export const throwUnauthorized = (message = 'Unauthorized') => {
 
 export const throwInternal = (message = 'Something went wrong') => {
   throw new InternalServerErrorException({ status: 500, message });
+};
+
+export const throwConflict = (message = 'Conflict error') => {
+  throw new ConflictException({ status: 409, message });
 };

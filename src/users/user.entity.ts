@@ -34,8 +34,6 @@ export class User extends Model<User> {
   })
   email: string;
 
-  // Обычно пароль не показывают в документации
-  // Можно убрать @ApiProperty или пометить как скрытое поле
   @ApiProperty({ example: 'hashedpassword123', writeOnly: true })
   @Column({
     type: DataType.STRING,

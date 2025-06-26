@@ -2,11 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Test } from './tests.entity';
 import { QuestionService } from '../questions/questions.service';
-import { CreateTestDto } from './dto/create-test.dto';
-import { UpdateTestDto } from './dto/update-test.dto';
-import { CreateQuestionDto } from '../questions/dto/create-question.dto';
 import { tryCatch } from '../common/utils/try-catch.helper';
 import { throwNotFound } from '../common/exceptions/http-exception.helper';
+import { ResponseTestWithQuestionsDto } from './dto/response-test.dto';
+import { Question } from '../questions/questions.entity';
+import { RequestTestWithQuestionsDto } from './dto/request-test.dto';
+import { RequestQuestionDto } from 'src/questions/dto/request-question.dto';
 
 @Injectable()
 export class TestService {
@@ -18,7 +19,9 @@ export class TestService {
     private readonly questionService: QuestionService,
   ) {}
 
-  async create(createDto: CreateTestDto): Promise<Test> {
+  async create(
+    createDto: RequestTestWithQuestionsDto,
+  ): Promise<ResponseTestWithQuestionsDto> {
     const { questions, ...testData } = createDto;
 
     const test = await tryCatch(
@@ -30,16 +33,23 @@ export class TestService {
       await this.createQuestionsForTest(test.id, questions);
     }
 
-    return test;
+    const testWithQuestions = await this.testModel.findByPk(test.id, {
+      include: [Question],
+    });
+
+    return testWithQuestions;
   }
 
-  async findAll(): Promise<Test[]> {
-    return tryCatch(() => this.testModel.findAll(), 'TestService:findAll');
+  async findAll(): Promise<ResponseTestWithQuestionsDto[]> {
+    return tryCatch(
+      () => this.testModel.findAll({ include: [Question] }),
+      'TestService:findAll',
+    );
   }
 
-  async findById(id: string): Promise<Test> {
+  async findById(id: string): Promise<ResponseTestWithQuestionsDto> {
     const test = await tryCatch(
-      () => this.testModel.findByPk(id),
+      () => this.testModel.findByPk(id, { include: [Question] }),
       'TestService:findById',
     );
 
@@ -50,15 +60,14 @@ export class TestService {
     return test;
   }
 
-  async update(id: string, updateDto: UpdateTestDto): Promise<Test> {
+  async update(
+    id: string,
+    updateDto: RequestTestWithQuestionsDto,
+  ): Promise<ResponseTestWithQuestionsDto> {
     const { questions, ...testData } = updateDto;
 
-    const [affectedCount, [updatedTest]] = await tryCatch(
-      () =>
-        this.testModel.update(testData, {
-          where: { id },
-          returning: true,
-        }),
+    const [affectedCount] = await tryCatch(
+      () => this.testModel.update(testData, { where: { id } }),
       'TestService:update',
     );
 
@@ -71,23 +80,29 @@ export class TestService {
       await this.createQuestionsForTest(id, questions);
     }
 
-    return updatedTest;
+    const updatedTest = await this.testModel.findByPk(id, {
+      include: [Question],
+    });
+
+    return updatedTest as ResponseTestWithQuestionsDto;
   }
 
-  async remove(id: string): Promise<void> {
-    const deleted = await tryCatch(
+  async remove(id: string): Promise<string> {
+    const deletedCount = await tryCatch(
       () => this.testModel.destroy({ where: { id } }),
       'TestService:remove',
     );
 
-    if (!deleted) {
+    if (!deletedCount) {
       throwNotFound(`Test with id ${id} not found`);
     }
+
+    return id;
   }
 
   private async createQuestionsForTest(
     testId: string,
-    questions: CreateQuestionDto[],
+    questions: RequestQuestionDto[],
   ): Promise<void> {
     await tryCatch(
       () =>
