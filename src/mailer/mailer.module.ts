@@ -11,6 +11,7 @@ import { join } from 'path';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        console.log('TEST INIT MAIL MODULE');
         console.log('MAIL_USER:', config.get('MAIL_USER'));
         console.log('MAIL_PASSWORD:', config.get('MAIL_PASSWORD'));
 
