@@ -6,7 +6,7 @@ services:
     container_name: quizzerhub-postgres
     restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - '${POSTGRES_PORT}:5432'
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -19,7 +19,7 @@ services:
     container_name: quizzerhub-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT}:6379"
+      - '${REDIS_PORT}:6379'
 
   backend-prod:
     build:
@@ -29,7 +29,7 @@ services:
     container_name: quizzerhub-backend-prod
     restart: unless-stopped
     ports:
-      - "${APP_PORT}:8080"
+      - '${APP_PORT}:8080'
     depends_on:
       - postgres
       - redis
@@ -40,6 +40,8 @@ services:
       POSTGRES_PORT: ${POSTGRES_PORT}
       REDIS_PORT: ${REDIS_PORT}
       APP_PORT: ${APP_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
 
 volumes:
   pgdata:
