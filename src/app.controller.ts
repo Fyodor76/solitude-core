@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MailService } from './mailer/mailer.service';
 
@@ -8,6 +8,11 @@ export class AppController {
     private readonly appService: AppService,
     private readonly mailService: MailService,
   ) {}
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
 
   @Post('test-email')
   async sendTestEmail(
