@@ -10,6 +10,7 @@ import { Test } from './tests/tests.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Question } from './questions/questions.entity';
+import { MailModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { Question } from './questions/questions.entity';
     SequelizeModule.forFeature([User, Test, Question]),
     TestsModule,
     UsersModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
