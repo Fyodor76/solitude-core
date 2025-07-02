@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,8 +19,24 @@ export const throwUnauthorized = (message = 'Unauthorized') => {
   throw new UnauthorizedException({ status: 401, message });
 };
 
-export const throwInternal = (message = 'Something went wrong') => {
-  throw new InternalServerErrorException({ status: 500, message });
+export const throwInternal = (
+  error?: unknown,
+  safeMessage = 'Something went wrong',
+) => {
+  if (error instanceof Error) {
+    Logger.error('[Internal Error]', error.stack || error.message);
+    throw new InternalServerErrorException({
+      status: 500,
+      message: safeMessage,
+      error: error.message,
+    });
+  }
+
+  Logger.error('[Internal Error]', error);
+  throw new InternalServerErrorException({
+    status: 500,
+    message: safeMessage,
+  });
 };
 
 export const throwConflict = (message = 'Conflict error') => {

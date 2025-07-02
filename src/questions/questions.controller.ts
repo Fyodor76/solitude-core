@@ -1,8 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { QuestionService } from './questions.service';
 import { ResponseQuestionDto } from './dto/response-question.dto';
 
+@ApiTags('questions')
 @Controller('questions')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}

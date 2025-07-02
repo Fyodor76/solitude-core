@@ -9,6 +9,6 @@ export async function tryCatch<T>(
     return await handler();
   } catch (error) {
     Logger.error(`[${context}]`, error.stack || error.message);
-    throwInternal();
+    throwInternal(error);
   }
 }

@@ -88,9 +88,14 @@ export class TestService {
   }
 
   async remove(id: string): Promise<string> {
+    await tryCatch(
+      () => this.questionService.removeByTestId(id),
+      'TestService:remove:questions',
+    );
+
     const deletedCount = await tryCatch(
       () => this.testModel.destroy({ where: { id } }),
-      'TestService:remove',
+      'TestService:remove:test',
     );
 
     if (!deletedCount) {
