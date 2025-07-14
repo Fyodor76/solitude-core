@@ -11,6 +11,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Question } from './questions/questions.entity';
 import { MailModule } from './mailer/mailer.module';
+import { ChatModule } from './widgets/chat/chat.module';
+import { Chat } from './widgets/chat/chat.entity';
+import { Message } from './widgets/chat/message.entity';
+import { ChatParticipant } from './widgets/chat/chat-participant.entity';
 
 @Module({
   imports: [
@@ -21,10 +25,18 @@ import { MailModule } from './mailer/mailer.module';
         createDatabaseConfig(configService),
       inject: [ConfigService],
     }),
-    SequelizeModule.forFeature([User, Test, Question]),
+    SequelizeModule.forFeature([
+      User,
+      Test,
+      Question,
+      Chat,
+      Message,
+      ChatParticipant,
+    ]),
     TestsModule,
     UsersModule,
     MailModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

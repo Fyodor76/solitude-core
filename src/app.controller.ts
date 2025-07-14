@@ -35,6 +35,7 @@ export class AppController {
     description: 'Возвращает приветственное сообщение',
   })
   getHello(): string {
+    console.log('Get hello!');
     return this.appService.getHello();
   }
 

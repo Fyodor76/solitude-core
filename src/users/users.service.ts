@@ -1,11 +1,12 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.entity';
-import { tryCatch } from '../common/utils/try-catch.helper';
+import { tryCatch, tryCatchWs } from '../common/utils/try-catch.helper';
 import { throwNotFound } from '../common/exceptions/http-exception.helper';
 import { RequestUserDto } from './dto/request-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { Op } from 'sequelize';
+import { Sender } from './types';
 
 @Injectable()
 export class UsersService {
@@ -73,5 +74,17 @@ export class UsersService {
     );
     if (!deleted) throwNotFound(`User with id ${id} not found`);
     return { id };
+  }
+
+  async createGuestUser(): Promise<string> {
+    return tryCatchWs(async () => {
+      const guestUser = await this.userModel.create({
+        username: `guest_${Date.now()}`,
+        email: null,
+        password: null,
+        role: Sender.GUEST,
+      });
+      return guestUser.id;
+    }, 'ChatService:createGuestUser');
   }
 }

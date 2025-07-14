@@ -6,6 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 export const throwNotFound = (message = 'Resource not found') => {
   throw new NotFoundException({ status: 404, message });
@@ -25,6 +26,14 @@ export const throwInternal = (
 ) => {
   if (error instanceof Error) {
     Logger.error('[Internal Error]', error.stack || error.message);
+
+    if (process.env.NODE_ENV !== 'production') {
+      throw new InternalServerErrorException({
+        status: 500,
+        message: error.message, // <-- Показывай реальное сообщение
+      });
+    }
+
     throw new InternalServerErrorException({
       status: 500,
       message: safeMessage,
@@ -37,6 +46,23 @@ export const throwInternal = (
     status: 500,
     message: safeMessage,
   });
+};
+
+export const throwInternalWs = (
+  error?: unknown,
+  safeMessage = 'Something went wrong',
+): never => {
+  console.log(error, 'ERROR BLAT');
+  const isError = error instanceof Error;
+
+  const detailedMessage =
+    process.env.NODE_ENV !== 'production' && isError
+      ? error.message
+      : safeMessage;
+
+  Logger.error('[Internal WS Error]', isError ? error.stack : String(error));
+
+  throw new WsException(detailedMessage);
 };
 
 export const throwConflict = (message = 'Conflict error') => {
