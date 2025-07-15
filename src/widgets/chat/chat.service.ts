@@ -46,7 +46,11 @@ export class ChatService {
       });
 
       if (participant) {
+        const chatParticipants = await this.getChatParticipants(
+          participant.chat.id,
+        );
         return {
+          chatParticipants,
           chat: participant.chat,
           user: { id: userId, isGuest },
         };
@@ -54,10 +58,11 @@ export class ChatService {
 
       const chat = await this.chatModel.create({ status: DEFAULT_CHAT_STATUS });
       await this.chatParticipantModel.create({ chatId: chat.id, userId });
-
+      const chatParticipants = await this.getChatParticipants(chat.id);
       return {
         chat,
         user: { id: userId, isGuest },
+        chatParticipants,
       };
     }, 'ChatService:getOrCreateChat');
   }
@@ -141,5 +146,21 @@ export class ChatService {
         order: [['updatedAt', 'DESC']],
       });
     }, 'ChatService:getAllActiveChats');
+  }
+
+  async getChatParticipants(chatId: string) {
+    return tryCatch(async () => {
+      return this.userModel.findAll({
+        attributes: ['id', 'username', 'role'],
+        include: [
+          {
+            model: this.chatParticipantModel,
+            where: { chatId },
+            attributes: [],
+          },
+        ],
+        raw: true,
+      });
+    }, 'ChatService:getChatParticipants');
   }
 }
