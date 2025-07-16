@@ -13,11 +13,13 @@ import { ChatParticipantService } from './domain/services/ChatParticipantService
 import { MessageService } from './domain/services/MessageService';
 import { TypingStatusManager } from './application/typing-status.manager';
 import { SocketConnectionManager } from './application/socket-connection.manager';
+import { LoggerModule } from 'src/common/logger/logger.module';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([Chat, Message, User, ChatParticipant]),
     UsersModule,
+    LoggerModule,
   ],
   providers: [
     ChatService,

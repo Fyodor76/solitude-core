@@ -15,6 +15,7 @@ import { ChatModule } from './widgets/chat/chat.module';
 import { Chat } from './widgets/chat/entitites/chat.entity';
 import { Message } from './widgets/chat/entitites/message.entity';
 import { ChatParticipant } from './widgets/chat/entitites/chat-participant.entity';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ChatParticipant } from './widgets/chat/entitites/chat-participant.entit
     UsersModule,
     MailModule,
     ChatModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

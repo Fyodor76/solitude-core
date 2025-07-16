@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { AllWsExceptionsFilter } from './common/filters/all-ws-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +14,9 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
   app.useGlobalPipes(new ValidationPipe());
-  app.useWebSocketAdapter(new IoAdapter(app));
+  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllWsExceptionsFilter());
+
   const config = new DocumentBuilder().setTitle('Quizzerhub-core').build();
 
   const document = SwaggerModule.createDocument(app, config);
