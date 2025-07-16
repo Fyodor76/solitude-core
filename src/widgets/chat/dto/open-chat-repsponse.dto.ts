@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Chat } from '../chat.entity';
+import { Chat } from '../entitites/chat.entity';
 
 export class ChatParticipantDto {
   @ApiProperty()

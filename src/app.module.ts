@@ -12,9 +12,9 @@ import { AppService } from './app.service';
 import { Question } from './questions/questions.entity';
 import { MailModule } from './mailer/mailer.module';
 import { ChatModule } from './widgets/chat/chat.module';
-import { Chat } from './widgets/chat/chat.entity';
-import { Message } from './widgets/chat/message.entity';
-import { ChatParticipant } from './widgets/chat/chat-participant.entity';
+import { Chat } from './widgets/chat/entitites/chat.entity';
+import { Message } from './widgets/chat/entitites/message.entity';
+import { ChatParticipant } from './widgets/chat/entitites/chat-participant.entity';
 
 @Module({
   imports: [

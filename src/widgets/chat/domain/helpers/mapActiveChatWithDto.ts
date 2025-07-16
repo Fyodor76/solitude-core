@@ -1,4 +1,4 @@
-import { Chat } from '../chat.entity';
+import { Chat } from '../../entitites/chat.entity';
 
 export const mapActiveChatWithDto = (chat: Chat) => {
   return {

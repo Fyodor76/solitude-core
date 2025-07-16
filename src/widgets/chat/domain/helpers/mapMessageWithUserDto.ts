@@ -1,4 +1,4 @@
-import { Message } from '../message.entity';
+import { Message } from '../../entitites/message.entity';
 
 export const mapMessageWithUserDto = (msg: Message) => {
   return {

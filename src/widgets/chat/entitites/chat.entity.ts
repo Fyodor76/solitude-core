@@ -1,7 +1,11 @@
 import { Optional } from 'sequelize';
 import { Column, DataType, HasMany, Table, Model } from 'sequelize-typescript';
 import { Message } from './message.entity';
-import { ChatStatus, ChatStatusType, DEFAULT_CHAT_STATUS } from './types';
+import {
+  ChatStatus,
+  ChatStatusType,
+  DEFAULT_CHAT_STATUS,
+} from '../types/status';
 import { ChatParticipant } from './chat-participant.entity';
 
 interface ChatAttributes {

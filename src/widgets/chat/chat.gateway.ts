@@ -8,7 +8,7 @@ import {
   OnGatewayDisconnect,
   WsException,
 } from '@nestjs/websockets';
-import { ChatService } from './chat.service';
+import { ChatService } from './application/chat.service';
 import { Server, Socket } from 'socket.io';
 
 import { OpenChatRequestDto } from './dto/open-chat-request.dto';
@@ -22,8 +22,8 @@ import { Events, SocketEvents } from './const/chat-events';
 
 import { UseFilters } from '@nestjs/common';
 import { AllWsExceptionsFilter } from 'src/common/filters/all-ws-exceptions.filter';
-import { mapMessageWithUserDto } from './helpers/mapMessageWithUserDto';
-import { mapActiveChatWithDto } from './helpers/mapActiveChatWithDto';
+import { mapMessageWithUserDto } from './domain/helpers/mapMessageWithUserDto';
+import { mapActiveChatWithDto } from './domain/helpers/mapActiveChatWithDto';
 import { Logger } from '@nestjs/common';
 /**
  * WebSocket Gateway для чата.
@@ -115,7 +115,6 @@ export class ChatGateway
     };
 
     client.emit(Events.CHAT_OPENED, chatOpenedResponse);
-
     const activeChats = await this.chatService.getAllActiveChats();
     this.server.emit(
       Events.ACTIVE_CHATS_UPDATED,
@@ -243,6 +242,21 @@ export class ChatGateway
     }
   }
 
+  /**
+   * Получение активных чатов
+   *
+   * @param client Сокет-клиент, от которого пришло событие
+   */
+  @SubscribeMessage(SocketEvents.GET_ACTIVE_CHATS)
+  async handleGetActiveChats(@ConnectedSocket() client: Socket) {
+    const activeChats = await this.chatService.getAllActiveChats();
+
+    client.emit(
+      Events.ACTIVE_CHATS_UPDATED,
+      activeChats.map((activeChat) => mapActiveChatWithDto(activeChat)),
+    );
+  }
+
   /** PRIVATE METHODS */
   /**
    * Привязывает клиента к чату:
@@ -268,16 +282,6 @@ export class ChatGateway
     client.emit(
       Events.CHAT_HISTORY,
       messages.map((m) => mapMessageWithUserDto(m)),
-    );
-  }
-
-  @SubscribeMessage(SocketEvents.GET_ACTIVE_CHATS)
-  async handleGetActiveChats(@ConnectedSocket() client: Socket) {
-    const activeChats = await this.chatService.getAllActiveChats();
-
-    client.emit(
-      Events.ACTIVE_CHATS_UPDATED,
-      activeChats.map((activeChat) => mapActiveChatWithDto(activeChat)),
     );
   }
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ChatStatus, ChatStatusType } from '../types';
+import { ChatStatus, ChatStatusType } from '../types/status';
 import { ChatParticipantDto } from './chat-participants.dto';
 import { MessageDto } from './chat-history-response.dto';
 

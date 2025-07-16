@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { ChatService } from './chat.service';
-import { mapActiveChatWithDto } from './helpers/mapActiveChatWithDto';
+import { ChatService } from './application/chat.service';
+import { mapActiveChatWithDto } from './domain/helpers/mapActiveChatWithDto';
 
 @Controller('chats')
 export class ChatContoller {

@@ -6,8 +6,8 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Chat } from './chat.entity';
 import { User } from 'src/users/user.entity';
+import { Chat } from './chat.entity';
 
 @Table({ tableName: 'chat_participants' })
 export class ChatParticipant extends Model<ChatParticipant> {

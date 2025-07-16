@@ -7,8 +7,8 @@ import {
   UpdatedAt,
   HasMany,
 } from 'sequelize-typescript';
-import { ChatParticipant } from 'src/widgets/chat/chat-participant.entity';
 import { Sender, SenderType } from './types';
+import { ChatParticipant } from 'src/widgets/chat/entitites/chat-participant.entity';
 
 @Table({ tableName: 'users' })
 export class User extends Model<User> {

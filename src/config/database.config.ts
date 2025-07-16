@@ -3,9 +3,9 @@ import { SequelizeModuleOptions } from '@nestjs/sequelize';
 import { Test } from '../tests/tests.entity';
 import { User } from '../users/user.entity';
 import { Question } from '../questions/questions.entity';
-import { Chat } from 'src/widgets/chat/chat.entity';
-import { Message } from 'src/widgets/chat/message.entity';
-import { ChatParticipant } from 'src/widgets/chat/chat-participant.entity';
+import { Chat } from 'src/widgets/chat/entitites/chat.entity';
+import { Message } from 'src/widgets/chat/entitites/message.entity';
+import { ChatParticipant } from 'src/widgets/chat/entitites/chat-participant.entity';
 
 export const createDatabaseConfig = (
   configService: ConfigService,
