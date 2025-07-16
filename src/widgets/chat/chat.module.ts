@@ -11,6 +11,8 @@ import { UsersModule } from 'src/users/users.module';
 import { ChatCrudService } from './domain/services/ChatCrudService';
 import { ChatParticipantService } from './domain/services/ChatParticipantService';
 import { MessageService } from './domain/services/MessageService';
+import { TypingStatusManager } from './application/typing-status.manager';
+import { SocketConnectionManager } from './application/socket-connection.manager';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { MessageService } from './domain/services/MessageService';
     ChatCrudService,
     ChatParticipantService,
     MessageService,
+    TypingStatusManager,
+    SocketConnectionManager,
   ],
   controllers: [ChatContoller],
 })
