@@ -32,7 +32,7 @@ export class ChatParticipantService {
    * @param userId - идентификатор пользователя
    * @returns Promise с созданной записью участника чата
    */
-  async join(chatId: string, userId: string) {
+  async join(chatId: string, userId: string): Promise<ChatParticipant> {
     this.logger.log(`Добавление участника: userId=${userId}, chatId=${chatId}`);
     return this.participantModel.create({ chatId, userId });
   }
@@ -43,7 +43,7 @@ export class ChatParticipantService {
    * @param userId - идентификатор пользователя
    * @returns Promise с объектом участника или null, если не найден
    */
-  async findByUserId(userId: string) {
+  async findByUserId(userId: string): Promise<ChatParticipant> {
     this.logger.log(`Поиск участника по userId: ${userId}`);
     return this.participantModel.findOne({
       where: { userId },
@@ -58,7 +58,7 @@ export class ChatParticipantService {
    * @param chatId - идентификатор чата
    * @returns Promise с массивом участников (пользователей)
    */
-  async findParticipantsByChatId(chatId: string) {
+  async findParticipantsByChatId(chatId: string): Promise<User[]> {
     this.logger.log(`Получение участников для чата: ${chatId}`);
     return this.userModel.findAll({
       attributes: ['id', 'username', 'role'],

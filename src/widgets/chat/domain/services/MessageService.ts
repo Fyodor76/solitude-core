@@ -24,7 +24,7 @@ export class MessageService {
    * @param dto - DTO с данными сообщения (chatId, userId, текст)
    * @returns Promise с созданным сообщением
    */
-  async create(dto: RequestMessageDto) {
+  async create(dto: RequestMessageDto): Promise<Message> {
     this.logger.log(
       `Создание сообщения: chatId=${dto.chatId}, userId=${dto.userId}`,
     );
@@ -36,7 +36,7 @@ export class MessageService {
    * @param chatId - идентификатор чата
    * @returns Promise с массивом сообщений (без данных пользователя)
    */
-  async findAllByChatId(chatId: string) {
+  async findAllByChatId(chatId: string): Promise<Message[]> {
     this.logger.log(`Получение сообщений для чата: ${chatId}`);
     return this.messageModel.findAll({ where: { chatId } });
   }
@@ -46,7 +46,7 @@ export class MessageService {
    * @param messageId - идентификатор сообщения
    * @returns Promise с сообщением и вложенным объектом пользователя
    */
-  async getByIdWithUser(messageId: string) {
+  async getByIdWithUser(messageId: string): Promise<Message> {
     this.logger.log(`Получение сообщения по id с пользователем: ${messageId}`);
     return this.messageModel.findOne({
       where: { id: messageId },
@@ -61,7 +61,7 @@ export class MessageService {
    * @param chatId - идентификатор чата
    * @returns Promise с массивом сообщений с данными пользователей
    */
-  async findAllByChatIdWithUsers(chatId: string) {
+  async findAllByChatIdWithUsers(chatId: string): Promise<Message[]> {
     this.logger.log(`Получение сообщений с пользователями для чата: ${chatId}`);
     return this.messageModel.findAll({
       where: { chatId },

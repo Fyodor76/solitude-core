@@ -15,7 +15,7 @@ export class ChatCrudService {
    * @param status Статус чата (например, ACTIVE, CLOSED)
    * @returns Созданный объект чата
    */
-  async create(status: ChatStatus) {
+  async create(status: ChatStatus): Promise<Chat> {
     return this.chatModel.create({ status });
   }
 
@@ -23,7 +23,7 @@ export class ChatCrudService {
    * Получить все чаты со статусом ACTIVE.
    * @returns Массив активных чатов
    */
-  async findActive() {
+  async findActive(): Promise<Chat[]> {
     return this.chatModel.findAll({ where: { status: ChatStatus.ACTIVE } });
   }
 
@@ -34,7 +34,7 @@ export class ChatCrudService {
    * @throws Ошибка, если чат не найден
    * @returns Обновлённый объект чата
    */
-  async close(chatId: string) {
+  async close(chatId: string): Promise<Chat> {
     const chat = await this.chatModel.findByPk(chatId);
     if (!chat) throwNotFound('Chat not found');
     chat.status = ChatStatus.CLOSED;
@@ -46,7 +46,7 @@ export class ChatCrudService {
    * @param chatId Идентификатор чата
    * @returns Объект чата или null, если не найден
    */
-  async findById(chatId: string) {
+  async findById(chatId: string): Promise<Chat> {
     return this.chatModel.findByPk(chatId);
   }
 
@@ -56,7 +56,7 @@ export class ChatCrudService {
    * Результат отсортирован по обновлению чата (по убыванию).
    * @returns Массив активных чатов с участниками и пользователями
    */
-  async findActiveWithParticipants() {
+  async findActiveWithParticipants(): Promise<Chat[]> {
     return this.chatModel.findAll({
       where: { status: ChatStatus.ACTIVE },
       include: [
