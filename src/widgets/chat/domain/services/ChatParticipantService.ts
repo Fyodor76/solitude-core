@@ -33,7 +33,22 @@ export class ChatParticipantService {
    * @returns Promise с созданной записью участника чата
    */
   async join(chatId: string, userId: string): Promise<ChatParticipant> {
-    this.logger.log(`Добавление участника: userId=${userId}, chatId=${chatId}`);
+    this.logger.log(`Проверяем участие: userId=${userId}, chatId=${chatId}`);
+
+    const existing = await this.participantModel.findOne({
+      where: { chatId, userId },
+    });
+
+    if (existing) {
+      this.logger.log(
+        `Пользователь уже в чате: userId=${userId}, chatId=${chatId}`,
+      );
+      return existing;
+    }
+
+    this.logger.log(
+      `Добавление нового участника: userId=${userId}, chatId=${chatId}`,
+    );
     return this.participantModel.create({ chatId, userId });
   }
 
@@ -61,7 +76,6 @@ export class ChatParticipantService {
   async findParticipantsByChatId(chatId: string): Promise<User[]> {
     this.logger.log(`Получение участников для чата: ${chatId}`);
     return this.userModel.findAll({
-      attributes: ['id', 'username', 'role'],
       include: [
         {
           model: ChatParticipant,

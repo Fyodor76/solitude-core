@@ -1,9 +1,16 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsNotEmpty } from 'class-validator';
 
 export class OpenChatRequestDto {
-  @ApiPropertyOptional()
-  @IsString()
+  /**
+   * Идентификатор пользователя (если есть).
+   * Если не передан, создаётся гость.
+   */
+  @ApiPropertyOptional({
+    description: 'ID пользователя. Если не передан, создаётся гость.',
+  })
   @IsOptional()
-  userId: string | null;
+  @IsString()
+  @IsNotEmpty()
+  userId?: string;
 }

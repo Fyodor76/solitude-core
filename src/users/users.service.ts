@@ -76,7 +76,7 @@ export class UsersService {
     return { id };
   }
 
-  async createGuestUser(): Promise<string> {
+  async createGuestUser(): Promise<User> {
     return tryCatchWs(async () => {
       const guestUser = await this.userModel.create({
         username: `guest_${Date.now()}`,
@@ -84,7 +84,7 @@ export class UsersService {
         password: null,
         role: Sender.GUEST,
       });
-      return guestUser.id;
+      return guestUser;
     }, 'ChatService:createGuestUser');
   }
 }

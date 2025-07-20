@@ -19,11 +19,10 @@ import { Events, SocketEvents } from './const/chat-events';
 
 import { UseFilters } from '@nestjs/common';
 import { AllWsExceptionsFilter } from 'src/common/filters/all-ws-exceptions.filter';
-import { mapMessageWithUserDto } from './domain/helpers/mapMessageWithUserDto';
-import { mapActiveChatWithDto } from './domain/helpers/mapActiveChatWithDto';
 import { SocketConnectionManager } from './application/socket-connection.manager';
 import { TypingStatusManager } from './application/typing-status.manager';
 import { AppLogger } from 'src/common/logger/app-logger.service';
+import { TypingStatusRequestDto } from './dto/typing-status-request-dto';
 
 /**
  * WebSocket Gateway для чата.
@@ -100,10 +99,7 @@ export class ChatGateway
     client.emit(Events.CHAT_OPENED, chatData);
 
     const activeChats = await this.chatService.getAllActiveChats();
-    this.server.emit(
-      Events.ACTIVE_CHATS_UPDATED,
-      activeChats.map(mapActiveChatWithDto),
-    );
+    this.server.emit(Events.ACTIVE_CHATS_UPDATED, activeChats);
 
     this.logger.debug(`Chat ${chatData.chat.id} opened and client joined`);
   }
@@ -116,9 +112,7 @@ export class ChatGateway
   async handleMessage(@MessageBody() data: RequestMessageDto) {
     this.logger.log(`Sending message to chat ${data.chatId}`);
     const message = await this.chatService.createMessage(data);
-    this.server
-      .to(data.chatId)
-      .emit(Events.NEW_MESSAGE, mapMessageWithUserDto(message));
+    this.server.to(data.chatId).emit(Events.NEW_MESSAGE, message);
   }
 
   /**
@@ -138,6 +132,7 @@ export class ChatGateway
     const participants = await this.chatService.getChatParticipants(
       data.chatId,
     );
+
     this.server.to(chat.id).emit(Events.USER_JOINED, {
       userId: data.userId,
       chatParticipants: participants,
@@ -162,7 +157,7 @@ export class ChatGateway
    */
   @SubscribeMessage(SocketEvents.TYPING)
   async handleTyping(
-    @MessageBody() data: { chatId: string },
+    @MessageBody() data: TypingStatusRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const userId = this.connectionManager.getUserIdBySocket(client.id);
@@ -182,7 +177,7 @@ export class ChatGateway
    */
   @SubscribeMessage(SocketEvents.STOP_TYPING)
   async handleStopTyping(
-    @MessageBody() data: { chatId: string },
+    @MessageBody() data: TypingStatusRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const userId = this.connectionManager.getUserIdBySocket(client.id);
@@ -203,10 +198,7 @@ export class ChatGateway
   async handleGetActiveChats(@ConnectedSocket() client: Socket) {
     this.logger.debug(`Client ${client.id} requested active chats`);
     const activeChats = await this.chatService.getAllActiveChats();
-    client.emit(
-      Events.ACTIVE_CHATS_UPDATED,
-      activeChats.map(mapActiveChatWithDto),
-    );
+    client.emit(Events.ACTIVE_CHATS_UPDATED, activeChats);
   }
 
   /**
@@ -223,8 +215,7 @@ export class ChatGateway
     this.logger.debug(`Connecting user ${userId} to chat ${chatId}`);
     this.connectionManager.registerClientInChat(userId, chatId, client.id);
     client.join(chatId);
-
     const messages = await this.chatService.getChatMessages(chatId);
-    client.emit(Events.CHAT_HISTORY, messages.map(mapMessageWithUserDto));
+    client.emit(Events.CHAT_HISTORY, messages);
   }
 }

@@ -28,7 +28,8 @@ export class MessageService {
     this.logger.log(
       `Создание сообщения: chatId=${dto.chatId}, userId=${dto.userId}`,
     );
-    return this.messageModel.create(dto);
+    const message = await this.messageModel.create(dto);
+    return this.getByIdWithUser(message.id);
   }
 
   /**
