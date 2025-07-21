@@ -16,6 +16,7 @@ import { Chat } from './widgets/chat/entitites/chat.entity';
 import { Message } from './widgets/chat/entitites/message.entity';
 import { ChatParticipant } from './widgets/chat/entitites/chat-participant.entity';
 import { LoggerModule } from './common/logger/logger.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { LoggerModule } from './common/logger/logger.module';
     MailModule,
     ChatModule,
     LoggerModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

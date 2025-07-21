@@ -9,6 +9,7 @@ import {
 import { AppService } from './app.service';
 import { MailService } from './mailer/mailer.service';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { RedisService } from './redis/redis.service';
 
 export class SendTestEmailDto {
   @ApiProperty({ example: 'example@mail.ru', description: 'Email получателя' })
@@ -26,6 +27,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly mailService: MailService,
+    private readonly redisService: RedisService,
   ) {}
 
   @Get()
@@ -51,5 +53,20 @@ export class AppController {
     await this.mailService.sendConfirmationEmail(email, name, link);
 
     return `Тестовое письмо отправлено на ${email} для ${name}!`;
+  }
+
+  @Get('test-redis')
+  @ApiOperation({ summary: 'Тестирование Redis' })
+  @ApiResponse({ status: 200, description: 'Redis успешно протестирован' })
+  async testRedis(): Promise<any> {
+    const testKey = 'test:key';
+    const testValue = 'Hello Redis!';
+    const ttl = 60;
+
+    const setResult = await this.redisService.set(testKey, testValue, ttl);
+
+    return {
+      set: setResult,
+    };
   }
 }
