@@ -1,0 +1,468 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { ProductRepository } from '../../domain/repository/product.repository';
+import {
+  ProductAttribute,
+  ProductEntity,
+  ProductVariation,
+  VariationAttribute,
+} from '../../domain/entities/product.entity';
+import { ProductModel } from '../orm/product.entity';
+import { ProductVariationModel } from '../orm/product-variation.entity';
+import { Op } from 'sequelize';
+import { VariationAttributeModel } from '../orm/variation-attribute.entity';
+import { ProductAttributeLinkModel } from '../orm/product-attribute-link.entity';
+import { ProductFiltersDto } from 'src/products/application/dto/product-filters.dto';
+
+@Injectable()
+export class SequelizeProductRepository implements ProductRepository {
+  constructor(
+    @InjectModel(ProductModel)
+    private readonly productModel: typeof ProductModel,
+    @InjectModel(ProductVariationModel)
+    private readonly variationModel: typeof ProductVariationModel,
+    @InjectModel(ProductAttributeLinkModel)
+    private readonly productAttributeLinkModel: typeof ProductAttributeLinkModel,
+    @InjectModel(VariationAttributeModel)
+    private readonly variationAttributeModel: typeof VariationAttributeModel,
+  ) {}
+
+  async create(product: ProductEntity): Promise<ProductEntity> {
+    const transaction = await this.productModel.sequelize.transaction();
+
+    try {
+      const created = await this.productModel.create(
+        {
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          description: product.description,
+          price: product.price,
+          comparePrice: product.comparePrice,
+          categoryId: product.categoryId,
+          brand: product.brand,
+          material: product.material,
+          sku: product.sku,
+          isActive: product.isActive,
+          isFeatured: product.isFeatured,
+          inStock: product.inStock,
+          images: product.images,
+        },
+        { transaction },
+      );
+
+      // Создаем связи продукта с атрибутами
+      if (product.attributes.length > 0) {
+        const productAttributeLinksData = product.attributes.map((attr) => ({
+          productId: created.id,
+          attributeId: attr.attributeId,
+          values: attr.values,
+        }));
+        await this.productAttributeLinkModel.bulkCreate(
+          productAttributeLinksData,
+          {
+            transaction,
+          },
+        );
+      }
+
+      if (product.variations.length > 0) {
+        for (const variation of product.variations) {
+          const createdVariation = await this.variationModel.create(
+            {
+              id: variation.id,
+              productId: created.id,
+              sku: variation.sku,
+              price: variation.price,
+              comparePrice: variation.comparePrice,
+              stock: variation.stock,
+              images: variation.images,
+              isActive: variation.isActive,
+            },
+            { transaction },
+          );
+
+          if (variation.attributes.length > 0) {
+            const variationAttributesData = variation.attributes.map(
+              (attr) => ({
+                variationId: createdVariation.id,
+                attributeId: attr.attributeId,
+                valueSlug: attr.valueSlug,
+              }),
+            );
+            await this.variationAttributeModel.bulkCreate(
+              variationAttributesData,
+              { transaction },
+            );
+          }
+        }
+      }
+
+      await transaction.commit();
+      return await this.findById(created.id);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  async findById(id: string): Promise<ProductEntity> {
+    const found = await this.productModel.findByPk(id, {
+      include: [
+        {
+          model: ProductVariationModel,
+          include: [VariationAttributeModel],
+        },
+        ProductAttributeLinkModel,
+      ],
+    });
+    if (!found) return null;
+    return this.buildProductEntity(found);
+  }
+
+  async findBySlug(slug: string): Promise<ProductEntity> {
+    const found = await this.productModel.findOne({
+      where: { slug },
+      include: [
+        {
+          model: ProductVariationModel,
+          include: [VariationAttributeModel],
+        },
+        ProductAttributeLinkModel,
+      ],
+    });
+    if (!found) return null;
+    return this.buildProductEntity(found);
+  }
+
+  async findByCategory(categoryId: string): Promise<ProductEntity[]> {
+    const products = await this.productModel.findAll({
+      where: { categoryId },
+      include: [
+        {
+          model: ProductVariationModel,
+          include: [VariationAttributeModel],
+        },
+        ProductAttributeLinkModel,
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return products.map((product) => this.buildProductEntity(product));
+  }
+
+  async findByBrand(brand: string): Promise<ProductEntity[]> {
+    const products = await this.productModel.findAll({
+      where: { brand },
+      include: [
+        {
+          model: ProductVariationModel,
+          include: [VariationAttributeModel],
+        },
+        ProductAttributeLinkModel,
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return products.map((product) => this.buildProductEntity(product));
+  }
+
+  async findAll(filters?: ProductFiltersDto): Promise<ProductEntity[]> {
+    console.log('🔍 FIND ALL PRODUCTS CALLED');
+    console.log('FILTERS:', filters);
+    const where: any = {};
+    const order: any = [];
+
+    if (filters?.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
+
+    if (filters?.brand) {
+      where.brand = filters.brand;
+    }
+
+    if (filters?.inStock !== undefined) {
+      where.inStock = filters.inStock;
+    }
+
+    if (filters?.isFeatured !== undefined) {
+      where.isFeatured = filters.isFeatured;
+    }
+
+    if (filters?.search) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${filters.search}%` } },
+        { description: { [Op.iLike]: `%${filters.search}%` } },
+      ];
+    }
+
+    if (filters?.sortBy) {
+      order.push([filters.sortBy, filters.sortOrder || 'ASC']);
+    } else {
+      order.push(['createdAt', 'DESC']);
+    }
+
+    if (filters?.minPrice !== undefined || filters?.maxPrice !== undefined) {
+      where.price = {};
+      if (filters.minPrice !== undefined) {
+        where.price[Op.gte] = filters.minPrice;
+      }
+      if (filters.maxPrice !== undefined) {
+        where.price[Op.lte] = filters.maxPrice;
+      }
+    }
+
+    console.log('WHERE CLAUSE:', where);
+
+    try {
+      const products = await this.productModel.findAll({
+        where,
+        order,
+        include: [
+          {
+            model: ProductVariationModel,
+            include: [VariationAttributeModel],
+          },
+          ProductAttributeLinkModel,
+        ],
+      });
+
+      console.log('✅ PRODUCTS FOUND:', products.length);
+      return products.map((product) => this.buildProductEntity(product));
+    } catch (error) {
+      console.error('❌ FIND ALL ERROR:', error);
+      console.error('ERROR STACK:', error.stack);
+      throw error;
+    }
+  }
+
+  async update(product: ProductEntity): Promise<ProductEntity> {
+    const transaction = await this.productModel.sequelize.transaction();
+
+    try {
+      const [affectedCount] = await this.productModel.update(
+        {
+          name: product.name,
+          slug: product.slug,
+          description: product.description,
+          price: product.price,
+          comparePrice: product.comparePrice,
+          categoryId: product.categoryId,
+          brand: product.brand,
+          material: product.material,
+          sku: product.sku,
+          isActive: product.isActive,
+          isFeatured: product.isFeatured,
+          inStock: product.inStock,
+          images: product.images,
+          updatedAt: new Date(),
+        },
+        { where: { id: product.id }, transaction },
+      );
+
+      if (affectedCount === 0) {
+        await transaction.rollback();
+        return null;
+      }
+
+      await this.productAttributeLinkModel.destroy({
+        where: { productId: product.id },
+        transaction,
+      });
+
+      if (product.attributes.length > 0) {
+        const productAttributeLinksData = product.attributes.map((attr) => ({
+          productId: product.id,
+          attributeId: attr.attributeId,
+          values: attr.values,
+        }));
+        await this.productAttributeLinkModel.bulkCreate(
+          productAttributeLinksData,
+          {
+            transaction,
+          },
+        );
+      }
+
+      await transaction.commit();
+      return await this.findById(product.id);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.productModel.destroy({ where: { id } });
+  }
+
+  async createVariation(
+    productId: string,
+    variation: ProductVariation,
+  ): Promise<ProductEntity> {
+    const transaction = await this.productModel.sequelize.transaction();
+
+    try {
+      const createdVariation = await this.variationModel.create(
+        {
+          id: variation.id,
+          productId,
+          sku: variation.sku,
+          price: variation.price,
+          comparePrice: variation.comparePrice,
+          stock: variation.stock,
+          images: variation.images,
+          isActive: variation.isActive,
+        },
+        { transaction },
+      );
+
+      if (variation.attributes.length > 0) {
+        const variationAttributesData = variation.attributes.map((attr) => ({
+          variationId: createdVariation.id,
+          attributeId: attr.attributeId,
+          valueSlug: attr.valueSlug,
+        }));
+        await this.variationAttributeModel.bulkCreate(variationAttributesData, {
+          transaction,
+        });
+      }
+
+      await transaction.commit();
+      return await this.findById(productId);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  async updateVariation(
+    productId: string,
+    variation: ProductVariation,
+  ): Promise<ProductEntity> {
+    const transaction = await this.productModel.sequelize.transaction();
+
+    try {
+      const [affectedCount] = await this.variationModel.update(
+        {
+          sku: variation.sku,
+          price: variation.price,
+          comparePrice: variation.comparePrice,
+          stock: variation.stock,
+          images: variation.images,
+          isActive: variation.isActive,
+          updatedAt: new Date(),
+        },
+        { where: { id: variation.id, productId }, transaction },
+      );
+
+      if (affectedCount === 0) {
+        await transaction.rollback();
+        return null;
+      }
+
+      await this.variationAttributeModel.destroy({
+        where: { variationId: variation.id },
+        transaction,
+      });
+
+      if (variation.attributes.length > 0) {
+        const variationAttributesData = variation.attributes.map((attr) => ({
+          variationId: variation.id,
+          attributeId: attr.attributeId,
+          valueSlug: attr.valueSlug,
+        }));
+        await this.variationAttributeModel.bulkCreate(variationAttributesData, {
+          transaction,
+        });
+      }
+
+      await transaction.commit();
+      return await this.findById(productId);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  async deleteVariation(
+    productId: string,
+    variationId: string,
+  ): Promise<ProductEntity> {
+    const transaction = await this.productModel.sequelize.transaction();
+
+    try {
+      await this.variationAttributeModel.destroy({
+        where: { variationId },
+        transaction,
+      });
+
+      await this.variationModel.destroy({
+        where: { id: variationId, productId },
+        transaction,
+      });
+
+      await transaction.commit();
+      return await this.findById(productId);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  private buildProductEntity(model: ProductModel): ProductEntity {
+    const attributes = model.attributeLinks
+      ? model.attributeLinks.map(
+          (attr) => new ProductAttribute(attr.attributeId, attr.values),
+        )
+      : [];
+
+    const variations = model.variations
+      ? model.variations.map((v) => this.buildVariationEntity(v))
+      : [];
+
+    return new ProductEntity(
+      model.id,
+      model.name,
+      model.slug,
+      model.description,
+      parseFloat(model.price as any),
+      model.comparePrice ? parseFloat(model.comparePrice as any) : null,
+      model.categoryId,
+      model.brand,
+      model.material,
+      model.sku,
+      model.isActive,
+      model.isFeatured,
+      model.inStock,
+      model.images || [],
+      attributes,
+      variations,
+      model.createdAt,
+      model.updatedAt,
+    );
+  }
+
+  private buildVariationEntity(model: ProductVariationModel): ProductVariation {
+    const attributes = model.attributes
+      ? model.attributes.map(
+          (attr) => new VariationAttribute(attr.attributeId, attr.valueSlug),
+        )
+      : [];
+
+    return new ProductVariation(
+      model.id,
+      model.sku,
+      parseFloat(model.price as any),
+      model.comparePrice ? parseFloat(model.comparePrice as any) : null,
+      model.stock,
+      model.images || [],
+      attributes,
+      model.isActive,
+    );
+  }
+}

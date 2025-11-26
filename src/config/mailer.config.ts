@@ -22,7 +22,9 @@ export const createMailerConfig = (config: ConfigService): MailerOptions => {
     },
     template: {
       dir: join(__dirname, '..', 'mailer', 'templates'),
-      adapter: new HandlebarsAdapter(),
+      adapter: new HandlebarsAdapter(undefined, {
+        inlineCssEnabled: false,
+      }),
       options: {
         strict: true,
       },

@@ -10,8 +10,6 @@ export const mapMessageToDto = (message: Message) => {
     },
     user: {
       id: message.user?.id,
-      username: message.user?.username,
-      role: message.user?.role,
     },
   };
 };

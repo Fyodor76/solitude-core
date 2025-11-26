@@ -52,7 +52,7 @@ export class ChatContoller {
       return { message: 'Message received', data: dto };
     } catch (err) {
       console.error(err);
-      throw err; // Пусть Nest сам обработает
+      throw err;
     }
   }
 }

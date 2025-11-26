@@ -1,10 +1,8 @@
-import { User } from 'src/users/user.entity';
+import { UserModel } from 'src/users/infrastructure/orm/user.entity';
 
-export const mapUserToDto = (user: User) => {
+export const mapUserToDto = (user: UserModel) => {
   return {
     id: user.id,
-    username: user.username,
-    role: user.role,
-    email: user.email,
+    login: user.login,
   };
 };

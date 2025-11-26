@@ -7,7 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { Chat } from './chat.entity';
-import { User } from 'src/users/user.entity';
+import { UserModel } from 'src/users/infrastructure/orm/user.entity';
 
 interface MessageAttributes {
   id: string;
@@ -37,15 +37,15 @@ export class Message extends Model<
   })
   chatId: string;
 
-  @ForeignKey(() => User)
+  @ForeignKey(() => UserModel)
   @Column({
     type: DataType.UUID,
     allowNull: true,
   })
   userId: string | null;
 
-  @BelongsTo(() => User)
-  user: User;
+  @BelongsTo(() => UserModel)
+  user: UserModel;
 
   @Column({
     type: DataType.TEXT,

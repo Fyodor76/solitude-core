@@ -6,7 +6,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { User } from 'src/users/user.entity';
+import { UserModel } from 'src/users/infrastructure/orm/user.entity';
 import { Chat } from './chat.entity';
 
 @Table({ tableName: 'chat_participants' })
@@ -25,10 +25,10 @@ export class ChatParticipant extends Model<ChatParticipant> {
   @BelongsTo(() => Chat)
   chat: Chat;
 
-  @ForeignKey(() => User)
+  @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
   userId: string;
 
-  @BelongsTo(() => User)
-  user: User;
+  @BelongsTo(() => UserModel)
+  user: UserModel;
 }

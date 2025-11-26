@@ -5,12 +5,12 @@ import { Message } from './entitites/message.entity';
 import { ChatService } from './application/chat.service';
 import { ChatContoller } from './chat.controller';
 import { ChatGateway } from './chat.gateway';
-import { User } from './../../users/user.entity';
+import { UserModel } from '../../users/infrastructure/orm/user.entity';
 import { ChatParticipant } from './entitites/chat-participant.entity';
 import { UsersModule } from './../../users/users.module';
-import { ChatCrudService } from './domain/services/ChatCrudService';
-import { ChatParticipantService } from './domain/services/ChatParticipantService';
-import { MessageService } from './domain/services/MessageService';
+import { ChatCrudService } from './domain/chat-crud.service';
+import { ChatParticipantService } from './domain/chat-participants-service';
+import { MessageService } from './domain/message.service';
 import { TypingStatusManager } from './application/typing-status.manager';
 import { SocketConnectionManager } from './application/socket-connection.manager';
 import { LoggerModule } from '../../common/logger/logger.module';
@@ -18,7 +18,7 @@ import { RedisModule } from './../../redis/redis.module';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Chat, Message, User, ChatParticipant]),
+    SequelizeModule.forFeature([Chat, Message, UserModel, ChatParticipant]),
     UsersModule,
     LoggerModule,
     RedisModule,

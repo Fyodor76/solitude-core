@@ -6,12 +6,12 @@ import { tryCatch, tryCatchWs } from '../../../common/utils/try-catch.helper';
 import { throwNotFound } from 'src/common/exceptions/http-exception.helper';
 import { UsersService } from 'src/users/users.service';
 import { OpenChatRequestDto } from '../dto/open-chat-request.dto';
-import { ChatParticipantService } from '../domain/services/ChatParticipantService';
-import { MessageService } from '../domain/services/MessageService';
-import { ChatCrudService } from '../domain/services/ChatCrudService';
+import { ChatParticipantService } from '../domain/chat-participants-service';
+import { MessageService } from '../domain/message.service';
+import { ChatCrudService } from '../domain/chat-crud.service';
 import { AppLogger } from '../../../common/logger/app-logger.service';
 import { mapChatToDto } from '../mappers/map-chat-to-dto';
-import { User } from 'src/users/user.entity';
+import { UserModel } from 'src/users/infrastructure/orm/user.entity';
 import { mapUserToDto } from '../mappers/map-user-to-dto';
 import { mapMessageToDto } from '../mappers/map-message-to-dto';
 
@@ -174,10 +174,10 @@ export class ChatService {
    * @param user - Сущность пользователя
    * @returns DTO с чатом, пользователем и участниками
    */
-  private async buildOpenedChatResponse(chat: Chat, user: User) {
+  private async buildOpenedChatResponse(chat: Chat, user: UserModel) {
     const chatParticipants = await this.getChatParticipants(chat.id);
     this.logger.log(
-      `Сборка ответа для открытого чата: ${chat.id}, userId: ${user.id}, role: ${user.role}`,
+      `Сборка ответа для открытого чата: ${chat.id}, userId: ${user.id}`,
     );
     return {
       chatParticipants: chatParticipants.map((p) => mapUserToDto(p)),

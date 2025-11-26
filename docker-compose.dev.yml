@@ -41,12 +41,11 @@ services:
       APP_PORT: ${APP_PORT}
       MAIL_USER: ${MAIL_USER}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     volumes:
       - ./:/app:delegated
       - /app/node_modules
       - ./yarn.lock:/app/yarn.lock:ro
-      - /app/node_modules
     command: yarn run start:dev
-
 volumes:
   pgdata:

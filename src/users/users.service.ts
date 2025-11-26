@@ -1,25 +1,49 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from './user.entity';
-import { tryCatch, tryCatchWs } from '../common/utils/try-catch.helper';
+import { UserModel } from './infrastructure/orm/user.entity';
+import { tryCatch } from '../common/utils/try-catch.helper';
 import { throwNotFound } from '../common/exceptions/http-exception.helper';
-import { RequestUserDto } from './dto/request-user.dto';
-import { ResponseUserDto } from './dto/response-user.dto';
-import { Op } from 'sequelize';
-import { Sender } from './types';
+import { ApiProperty } from '@nestjs/swagger';
+import { SenderType } from './types';
+
+export class RequestUserDto {
+  @ApiProperty({ example: 'johndoe' })
+  username: string;
+
+  @ApiProperty({ example: 'johndoe@example.com' })
+  email: string;
+
+  @ApiProperty({ example: 'operator' })
+  role: SenderType;
+
+  @ApiProperty({ example: 'StrongPassword123!' })
+  password: string;
+}
+
+export class ResponseUserDto {
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  id: string;
+
+  @ApiProperty({ example: 'johndoe' })
+  username: string;
+
+  @ApiProperty({ example: 'operator' })
+  role: SenderType;
+
+  @ApiProperty({ example: 'johndoe@example.com' })
+  email: string;
+}
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User)
-    private userModel: typeof User,
+    @InjectModel(UserModel)
+    private userModel: typeof UserModel,
   ) {}
 
   async create(createDto: RequestUserDto): Promise<ResponseUserDto> {
     const existingUser = await this.userModel.findOne({
-      where: {
-        [Op.or]: [{ username: createDto.username }, { email: createDto.email }],
-      },
+      where: { login: createDto.username },
     });
 
     if (existingUser) {
@@ -33,7 +57,7 @@ export class UsersService {
       'UsersService:create',
     );
 
-    return user.toJSON() as ResponseUserDto;
+    return user.toJSON() as any;
   }
 
   async findAll(): Promise<ResponseUserDto[]> {
@@ -41,7 +65,7 @@ export class UsersService {
       () => this.userModel.findAll(),
       'UsersService:findAll',
     );
-    return users.map((u) => u.toJSON() as ResponseUserDto);
+    return users.map((u) => u.toJSON() as any);
   }
 
   async findById(id: string): Promise<ResponseUserDto> {
@@ -50,7 +74,7 @@ export class UsersService {
       'UsersService:findById',
     );
     if (!user) throwNotFound(`User with id ${id} not found`);
-    return user.toJSON() as ResponseUserDto;
+    return user.toJSON() as any;
   }
 
   async update(
@@ -64,7 +88,7 @@ export class UsersService {
     if (affectedCount === 0) throwNotFound(`User with id ${id} not found`);
 
     const updatedUser = await this.userModel.findByPk(id);
-    return updatedUser.toJSON() as ResponseUserDto;
+    return updatedUser.toJSON() as any;
   }
 
   async remove(id: string): Promise<{ id: string }> {
@@ -76,15 +100,15 @@ export class UsersService {
     return { id };
   }
 
-  async createGuestUser(): Promise<User> {
-    return tryCatchWs(async () => {
-      const guestUser = await this.userModel.create({
-        username: `guest_${Date.now()}`,
-        email: null,
-        password: null,
-        role: Sender.GUEST,
-      });
-      return guestUser;
-    }, 'ChatService:createGuestUser');
+  async createGuestUser() {
+    // return tryCatchWs(async () => {
+    //   const guestUser = await this.userModel.create({
+    //     username: `guest_${Date.now()}`,
+    //     login: null,
+    //     password: null,
+    //     role: Sender.GUEST,
+    //   });
+    //   return guestUser;
+    // }, 'ChatService:createGuestUser');
   }
 }
