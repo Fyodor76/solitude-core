@@ -22,7 +22,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new UniversalExceptionsFilter());
 
-  const config = new DocumentBuilder().setTitle('Quizzerhub-core').build();
+  const config = new DocumentBuilder().setTitle('Solitude core').build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
