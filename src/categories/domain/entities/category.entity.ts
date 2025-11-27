@@ -24,10 +24,12 @@ export class CategoryEntity {
   }
 
   moveToParent(newParentId: string | null): void {
+    if (this.id === newParentId) {
+      throw new Error('Category cannot be parent of itself');
+    }
     this.parentId = newParentId;
     this.updatedAt = new Date();
   }
-
   isCollection(): boolean {
     return this.type === CategoryType.COLLECTION;
   }

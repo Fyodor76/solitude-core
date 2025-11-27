@@ -5,7 +5,6 @@ import { Chat } from 'src/widgets/chat/entitites/chat.entity';
 import { Message } from 'src/widgets/chat/entitites/message.entity';
 import { ChatParticipant } from 'src/widgets/chat/entitites/chat-participant.entity';
 import { CategoryModel } from 'src/categories/infrastructure/orm/category.entity';
-import { DictionaryModel } from 'src/dictionaries/infrastructure/orm/dictionary.entity'; // ← ДОБАВЬ
 import { ProductAttributeModel } from 'src/product-attributes/infrastructure/orm/product-attribute.entity';
 import { AttributeValueModel } from 'src/product-attributes/infrastructure/orm/attribute-value.entity';
 import { ProductModel } from 'src/products/infrastructure/orm/product.entity';
@@ -28,7 +27,6 @@ export const createDatabaseConfig = (
     Message,
     ChatParticipant,
     CategoryModel,
-    DictionaryModel,
     ProductAttributeModel,
     AttributeValueModel,
     ProductModel,

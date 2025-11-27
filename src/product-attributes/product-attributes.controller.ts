@@ -15,7 +15,18 @@ import {
   AttributeValueCreateDto,
 } from './application/dto/attribute-create.dto';
 import { ProductAttributeResponseDto } from './application/dto/attribute-response.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreateProductAttribute,
+  ApiCreateAttributeValue,
+  ApiGetAllProductAttributes,
+  ApiGetProductAttributeById,
+  ApiGetProductAttributeBySlug,
+  ApiGetProductAttributesByType,
+  ApiGetAttributeValues,
+  ApiUpdateProductAttribute,
+  ApiDeleteProductAttribute,
+} from 'src/common/swagger/product-attributes.decorators';
 
 @ApiTags('product-attributes')
 @Controller('product-attributes')
@@ -26,8 +37,7 @@ export class ProductAttributesController {
 
   @Post()
   @HttpCode(201)
-  @ApiOperation({ summary: 'Create product attribute' })
-  @ApiResponse({ status: 201, type: ProductAttributeResponseDto })
+  @ApiCreateProductAttribute()
   async createAttribute(
     @Body() dto: ProductAttributeCreateDto,
   ): Promise<ProductAttributeResponseDto> {
@@ -39,7 +49,7 @@ export class ProductAttributesController {
 
   @Post(':attributeId/values')
   @HttpCode(201)
-  @ApiOperation({ summary: 'Create attribute value' })
+  @ApiCreateAttributeValue()
   async createValue(
     @Param('attributeId') attributeId: string,
     @Body() dto: AttributeValueCreateDto,
@@ -51,8 +61,7 @@ export class ProductAttributesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all product attributes' })
-  @ApiResponse({ status: 200, type: [ProductAttributeResponseDto] })
+  @ApiGetAllProductAttributes()
   async findAll(): Promise<ProductAttributeResponseDto[]> {
     const attributes = await this.attributeApplication.getAllAttributes();
     return attributes.map((attribute) =>
@@ -61,8 +70,7 @@ export class ProductAttributesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get product attribute by id' })
-  @ApiResponse({ status: 200, type: ProductAttributeResponseDto })
+  @ApiGetProductAttributeById()
   async findById(
     @Param('id') id: string,
   ): Promise<ProductAttributeResponseDto> {
@@ -71,8 +79,7 @@ export class ProductAttributesController {
   }
 
   @Get('slug/:slug')
-  @ApiOperation({ summary: 'Get product attribute by slug' })
-  @ApiResponse({ status: 200, type: ProductAttributeResponseDto })
+  @ApiGetProductAttributeBySlug()
   async findBySlug(
     @Param('slug') slug: string,
   ): Promise<ProductAttributeResponseDto> {
@@ -81,8 +88,7 @@ export class ProductAttributesController {
   }
 
   @Get('type/:type')
-  @ApiOperation({ summary: 'Get product attributes by type' })
-  @ApiResponse({ status: 200, type: [ProductAttributeResponseDto] })
+  @ApiGetProductAttributesByType()
   async findByType(
     @Param('type') type: string,
   ): Promise<ProductAttributeResponseDto[]> {
@@ -95,7 +101,7 @@ export class ProductAttributesController {
   }
 
   @Get(':attributeId/values')
-  @ApiOperation({ summary: 'Get attribute values' })
+  @ApiGetAttributeValues()
   async getValues(@Param('attributeId') attributeId: string) {
     const values =
       await this.attributeApplication.getValuesByAttributeId(attributeId);
@@ -103,8 +109,7 @@ export class ProductAttributesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update product attribute' })
-  @ApiResponse({ status: 200, type: ProductAttributeResponseDto })
+  @ApiUpdateProductAttribute()
   async updateAttribute(
     @Param('id') id: string,
     @Body() dto: ProductAttributeCreateDto,
@@ -116,7 +121,7 @@ export class ProductAttributesController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete product attribute' })
+  @ApiDeleteProductAttribute()
   async deleteAttribute(@Param('id') id: string): Promise<{ message: string }> {
     await this.attributeApplication.deleteAttribute(id);
     return { message: 'Product attribute deleted successfully' };

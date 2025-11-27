@@ -12,11 +12,20 @@ export class SequilizeUserRepository implements UserRepository {
   ) {}
 
   async create(user: UserEntity): Promise<UserEntity> {
-    const created = await this.userModel.create({ ...user });
+    try {
+      const created = await this.userModel.create({
+        id: user.id,
+        login: user.login,
+        password: user.getPasswordHash(),
+      });
 
-    if (!created) return;
-
-    return this.buildUserEntity(created);
+      return this.buildUserEntity(created);
+    } catch (error) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        throw new Error('User with this login already exists');
+      }
+      throw error;
+    }
   }
 
   async findById(id: string): Promise<UserEntity> {
@@ -34,7 +43,7 @@ export class SequilizeUserRepository implements UserRepository {
     return this.buildUserEntity(found);
   }
 
-  private async buildUserEntity(user: UserModel) {
-    return new UserEntity(user.login, user.password, user.id);
+  private buildUserEntity(model: UserModel): UserEntity {
+    return new UserEntity(model.id, model.login, model.password);
   }
 }

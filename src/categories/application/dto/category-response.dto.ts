@@ -35,29 +35,7 @@ export class CategoryResponseDto {
   @ApiProperty()
   updatedAt: Date;
 
-  constructor(category: {
-    id: string;
-    name: string;
-    slug: string;
-    description: string;
-    parentId: string | null;
-    imageId: string;
-    isActive: boolean;
-    sortOrder: number;
-    type: CategoryType;
-    createdAt: Date;
-    updatedAt: Date;
-  }) {
-    this.id = category.id;
-    this.name = category.name;
-    this.slug = category.slug;
-    this.description = category.description;
-    this.parentId = category.parentId;
-    this.imageId = category.imageId;
-    this.isActive = category.isActive;
-    this.sortOrder = category.sortOrder;
-    this.type = category.type;
-    this.createdAt = category.createdAt;
-    this.updatedAt = category.updatedAt;
+  constructor(category: Partial<CategoryResponseDto>) {
+    Object.assign(this, category);
   }
 }

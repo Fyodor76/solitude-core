@@ -1,3 +1,5 @@
+import { AttributeValueEntity } from './attribute-value.entity';
+
 export enum AttributeType {
   COLOR = 'color',
   SIZE = 'size',
@@ -16,10 +18,32 @@ export class ProductAttributeEntity {
     public description: string = '',
     public isActive: boolean = true,
     public sortOrder: number = 0,
-    public values: any[] = [],
+    public values: AttributeValueEntity[] = [],
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
-  ) {}
+  ) {
+    this.validate();
+  }
+
+  private validate(): void {
+    const errors: string[] = [];
+
+    if (!this.name?.trim()) {
+      errors.push('Attribute name is required');
+    }
+    if (!this.slug?.trim()) {
+      errors.push('Attribute slug is required');
+    }
+    if (this.slug.includes(' ')) {
+      errors.push('Attribute slug cannot contain spaces');
+    }
+
+    if (errors.length > 0) {
+      throw new Error(
+        `ProductAttribute validation failed: ${errors.join(', ')}`,
+      );
+    }
+  }
 
   updateSortOrder(newOrder: number): void {
     this.sortOrder = newOrder;
@@ -32,8 +56,16 @@ export class ProductAttributeEntity {
   }
 
   updateInfo(name: string, description: string): void {
+    const originalName = this.name;
     this.name = name;
     this.description = description;
-    this.updatedAt = new Date();
+
+    try {
+      this.validate();
+      this.updatedAt = new Date();
+    } catch (error) {
+      this.name = originalName;
+      throw error;
+    }
   }
 }

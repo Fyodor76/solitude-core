@@ -10,7 +10,21 @@ export class AttributeValueEntity {
     public metadata: Record<string, any> = {},
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
-  ) {}
+  ) {
+    this.validate();
+  }
+
+  private validate(): void {
+    if (!this.value?.trim()) {
+      throw new Error('Attribute value cannot be empty');
+    }
+    if (!this.slug?.trim()) {
+      throw new Error('Attribute value slug cannot be empty');
+    }
+    if (this.slug.includes(' ')) {
+      throw new Error('Attribute value slug cannot contain spaces');
+    }
+  }
 
   updateSortOrder(newOrder: number): void {
     this.sortOrder = newOrder;
@@ -26,6 +40,7 @@ export class AttributeValueEntity {
     this.value = newValue;
     this.slug = newSlug;
     this.updatedAt = new Date();
+    this.validate();
   }
 
   updateHexCode(newHexCode: string): void {

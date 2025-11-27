@@ -5,9 +5,10 @@ import { UsersController } from './users.controller';
 import { UserModel } from './infrastructure/orm/user.entity';
 import { UserAplication } from './application/user.service';
 import { SequilizeUserRepository } from './infrastructure/repositories/sequelize-user.repository';
+import { TokenModule } from 'src/common/redis/token.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([UserModel])],
+  imports: [SequelizeModule.forFeature([UserModel]), TokenModule],
   providers: [
     UsersService,
     UserAplication,

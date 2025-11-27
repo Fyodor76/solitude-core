@@ -13,7 +13,6 @@ import { RedisModule } from './redis/redis.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { FileStorageModule } from './file-storage/file-storage.module';
-import { DictionariesModule } from './dictionaries/dictionaries.module';
 import { ProductAttributesModule } from './product-attributes/product-attributes.module';
 import { ProductsModule } from './products/products.module';
 
@@ -34,7 +33,6 @@ import { ProductsModule } from './products/products.module';
     AuthModule,
     CategoriesModule,
     FileStorageModule,
-    DictionariesModule,
     ProductAttributesModule,
     ProductsModule,
   ],

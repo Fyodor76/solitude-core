@@ -1,22 +1,48 @@
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 export class UserEntity {
-  constructor(
-    public login: string,
-    public password: string,
-    public id?: string,
-  ) {}
+  private _password: string;
 
-  async setPassword(plainPassword: string): Promise<void> {
-    const salt = await bcrypt.genSalt(5);
-    this.password = await bcrypt.hash(plainPassword, salt);
+  constructor(
+    public readonly id: string,
+    public login: string,
+    passwordHash: string,
+  ) {
+    this._password = passwordHash;
+    this.validate();
   }
 
+  // ✅ Безопасный доступ
   async checkPassword(plainPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainPassword, this.password);
+    return bcrypt.compare(plainPassword, this._password);
   }
 
   getPasswordHash(): string {
-    return this.password;
+    return this._password; // Только для внутреннего использования
+  }
+
+  // ✅ Валидация
+  private validate(): void {
+    if (!this.login?.trim()) {
+      throw new Error('Login is required');
+    }
+    if (this.login.length < 3) {
+      throw new Error('Login must be at least 3 characters');
+    }
+  }
+
+  static async create(
+    login: string,
+    plainPassword: string,
+  ): Promise<UserEntity> {
+    if (!plainPassword || plainPassword.length < 6) {
+      throw new Error('Password must be at least 6 characters');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(plainPassword, salt);
+
+    return new UserEntity(uuidv4(), login, passwordHash);
   }
 }

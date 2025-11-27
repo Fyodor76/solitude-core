@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: quizzerhub-postgres
+    container_name: solitude-postgres
     restart: unless-stopped
     ports:
       - '15432:5432'
@@ -16,7 +16,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: quizzerhub-redis
+    container_name: solitude-redis
     restart: unless-stopped
     ports:
       - '${REDIS_PORT}:6379'
@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: quizzerhub-backend-dev
+    container_name: solitude-backend-dev
     restart: unless-stopped
     ports:
       - '${APP_PORT}:8080'

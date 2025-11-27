@@ -51,7 +51,6 @@ export class SequelizeProductRepository implements ProductRepository {
         { transaction },
       );
 
-      // Создаем связи продукта с атрибутами
       if (product.attributes.length > 0) {
         const productAttributeLinksData = product.attributes.map((attr) => ({
           productId: created.id,
@@ -168,8 +167,6 @@ export class SequelizeProductRepository implements ProductRepository {
   }
 
   async findAll(filters?: ProductFiltersDto): Promise<ProductEntity[]> {
-    console.log('🔍 FIND ALL PRODUCTS CALLED');
-    console.log('FILTERS:', filters);
     const where: any = {};
     const order: any = [];
 
@@ -216,8 +213,6 @@ export class SequelizeProductRepository implements ProductRepository {
       }
     }
 
-    console.log('WHERE CLAUSE:', where);
-
     try {
       const products = await this.productModel.findAll({
         where,
@@ -231,7 +226,6 @@ export class SequelizeProductRepository implements ProductRepository {
         ],
       });
 
-      console.log('✅ PRODUCTS FOUND:', products.length);
       return products.map((product) => this.buildProductEntity(product));
     } catch (error) {
       console.error('❌ FIND ALL ERROR:', error);

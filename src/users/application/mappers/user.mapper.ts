@@ -4,10 +4,9 @@ import { UserResponseDto } from '../dto/user-response.dto';
 
 export class UserMapper {
   static async toEntity(dto: UserCreateDto): Promise<UserEntity> {
-    const user = new UserEntity(dto.login, dto.password);
-    await user.setPassword(dto.password);
-    return user;
+    return UserEntity.create(dto.login, dto.password);
   }
+
   static toResponse(user: UserEntity): UserResponseDto {
     return new UserResponseDto(user.id, user.login);
   }

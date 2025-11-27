@@ -16,8 +16,22 @@ import {
   ProductVariationCreateDto,
 } from './application/dto/product-create.dto';
 import { ProductResponseDto } from './application/dto/product-response.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ProductFiltersDto } from './application/dto/product-filters.dto';
+
+import {
+  ApiCreateProduct,
+  ApiGetAllProducts,
+  ApiGetProductById,
+  ApiGetProductBySlug,
+  ApiGetProductsByCategory,
+  ApiGetProductsByBrand,
+  ApiUpdateProduct,
+  ApiDeleteProduct,
+  ApiAddProductVariation,
+  ApiUpdateProductVariation,
+  ApiDeleteProductVariation,
+} from 'src/common/swagger/products.decorators';
 
 @ApiTags('products')
 @Controller('products')
@@ -26,8 +40,7 @@ export class ProductsController {
 
   @Post()
   @HttpCode(201)
-  @ApiOperation({ summary: 'Create product' })
-  @ApiResponse({ status: 201, type: ProductResponseDto })
+  @ApiCreateProduct()
   async create(@Body() dto: ProductCreateDto): Promise<ProductResponseDto> {
     const productEntity = ProductMapper.toEntity(dto);
     const createdProduct = await this.productApplication.create(productEntity);
@@ -35,8 +48,7 @@ export class ProductsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all products' })
-  @ApiResponse({ status: 200, type: [ProductResponseDto] })
+  @ApiGetAllProducts()
   async findAll(
     @Query() filters: ProductFiltersDto,
   ): Promise<ProductResponseDto[]> {
@@ -45,24 +57,21 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get product by id' })
-  @ApiResponse({ status: 200, type: ProductResponseDto })
+  @ApiGetProductById()
   async findById(@Param('id') id: string): Promise<ProductResponseDto> {
     const product = await this.productApplication.getById(id);
     return ProductMapper.toResponse(product);
   }
 
   @Get('slug/:slug')
-  @ApiOperation({ summary: 'Get product by slug' })
-  @ApiResponse({ status: 200, type: ProductResponseDto })
+  @ApiGetProductBySlug()
   async findBySlug(@Param('slug') slug: string): Promise<ProductResponseDto> {
     const product = await this.productApplication.getBySlug(slug);
     return ProductMapper.toResponse(product);
   }
 
   @Get('category/:categoryId')
-  @ApiOperation({ summary: 'Get products by category' })
-  @ApiResponse({ status: 200, type: [ProductResponseDto] })
+  @ApiGetProductsByCategory()
   async findByCategory(
     @Param('categoryId') categoryId: string,
   ): Promise<ProductResponseDto[]> {
@@ -71,8 +80,7 @@ export class ProductsController {
   }
 
   @Get('brand/:brand')
-  @ApiOperation({ summary: 'Get products by brand' })
-  @ApiResponse({ status: 200, type: [ProductResponseDto] })
+  @ApiGetProductsByBrand()
   async findByBrand(
     @Param('brand') brand: string,
   ): Promise<ProductResponseDto[]> {
@@ -81,8 +89,7 @@ export class ProductsController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update product' })
-  @ApiResponse({ status: 200, type: ProductResponseDto })
+  @ApiUpdateProduct()
   async update(
     @Param('id') id: string,
     @Body() dto: ProductCreateDto,
@@ -93,15 +100,15 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete product' })
+  @ApiDeleteProduct()
   async delete(@Param('id') id: string): Promise<{ message: string }> {
     await this.productApplication.delete(id);
     return { message: 'Product deleted successfully' };
   }
 
   @Post(':id/variations')
-  @ApiOperation({ summary: 'Add variation to product' })
-  @ApiResponse({ status: 201, type: ProductResponseDto })
+  @HttpCode(201)
+  @ApiAddProductVariation()
   async addVariation(
     @Param('id') productId: string,
     @Body() dto: ProductVariationCreateDto,
@@ -115,8 +122,7 @@ export class ProductsController {
   }
 
   @Put(':productId/variations/:variationId')
-  @ApiOperation({ summary: 'Update product variation' })
-  @ApiResponse({ status: 200, type: ProductResponseDto })
+  @ApiUpdateProductVariation()
   async updateVariation(
     @Param('productId') productId: string,
     @Param('variationId') variationId: string,
@@ -135,8 +141,7 @@ export class ProductsController {
   }
 
   @Delete(':productId/variations/:variationId')
-  @ApiOperation({ summary: 'Delete product variation' })
-  @ApiResponse({ status: 200, type: ProductResponseDto })
+  @ApiDeleteProductVariation()
   async deleteVariation(
     @Param('productId') productId: string,
     @Param('variationId') variationId: string,

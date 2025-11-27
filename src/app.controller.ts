@@ -5,6 +5,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiProperty,
+  ApiExcludeController,
 } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { MailService } from './mailer/mailer.service';
@@ -21,6 +22,8 @@ export class SendTestEmailDto {
   @IsNotEmpty()
   name: string;
 }
+
+@ApiExcludeController()
 @ApiTags('app')
 @Controller()
 export class AppController {

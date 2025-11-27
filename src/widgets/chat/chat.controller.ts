@@ -3,7 +3,7 @@ import { ChatService } from './application/chat.service';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, plainToInstance, Type } from 'class-transformer';
 import { IsString, IsUUID, Length } from 'class-validator';
-
+import { ApiExcludeController } from '@nestjs/swagger';
 export class ChatIdDto {
   @ApiProperty()
   @Expose()
@@ -28,6 +28,7 @@ export class ActiveChatIdResponseDto {
   chat: ChatIdDto;
 }
 
+@ApiExcludeController()
 @Controller('chats')
 export class ChatContoller {
   constructor(private readonly chatService: ChatService) {}
