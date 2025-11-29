@@ -11,6 +11,7 @@ import { ProductModel } from 'src/products/infrastructure/orm/product.entity';
 import { ProductVariationModel } from 'src/products/infrastructure/orm/product-variation.entity';
 import { VariationAttributeModel } from 'src/products/infrastructure/orm/variation-attribute.entity';
 import { ProductAttributeLinkModel } from 'src/products/infrastructure/orm/product-attribute-link.entity';
+import { FormSubmissionModel } from 'src/form-submissions/infrastructure/orm/form-submission.entity';
 
 export const createDatabaseConfig = (
   configService: ConfigService,
@@ -33,6 +34,7 @@ export const createDatabaseConfig = (
     ProductVariationModel,
     VariationAttributeModel,
     ProductAttributeLinkModel,
+    FormSubmissionModel,
   ],
   autoLoadModels: true,
   synchronize: true,

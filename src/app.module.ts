@@ -15,6 +15,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { FileStorageModule } from './file-storage/file-storage.module';
 import { ProductAttributesModule } from './product-attributes/product-attributes.module';
 import { ProductsModule } from './products/products.module';
+import { FormSubmissionsModule } from './form-submissions/form-submissions.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ProductsModule } from './products/products.module';
     FileStorageModule,
     ProductAttributesModule,
     ProductsModule,
+    FormSubmissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
