@@ -22,10 +22,9 @@ export class ProductEntity {
     public updatedAt: Date = new Date(),
   ) {
     this._variations = variations;
-    this.validate(); // ✅ Валидация при создании
+    this.validate();
   }
 
-  // 🔒 Приватная валидация
   private validate(): void {
     const errors: string[] = [];
 
@@ -65,14 +64,12 @@ export class ProductEntity {
       errors.push('SKU is required');
     }
 
-    // Валидация SKU уникальности среди вариаций
     const allSkus = [this.sku, ...this._variations.map((v) => v.sku)];
     const uniqueSkus = new Set(allSkus);
     if (uniqueSkus.size !== allSkus.length) {
       errors.push('SKU must be unique across product and its variations');
     }
 
-    // Валидация изображений
     if (this.images.some((img) => !this.isValidUrl(img))) {
       errors.push('All product images must be valid URLs');
     }
@@ -91,13 +88,11 @@ export class ProductEntity {
     }
   }
 
-  // ✅ Контролируемый доступ через методы
   get variations(): ReadonlyArray<ProductVariation> {
     return [...this._variations];
   }
 
   addVariation(variation: ProductVariation): void {
-    // Бизнес-логика при добавлении
     if (this._variations.some((v) => v.sku === variation.sku)) {
       throw new Error('Variation with this SKU already exists');
     }
@@ -108,7 +103,7 @@ export class ProductEntity {
 
     this._variations.push(variation);
     this.updatedAt = new Date();
-    this.validate(); // ✅ Валидация после изменения
+    this.validate();
   }
 
   removeVariation(variationId: string): void {
@@ -129,7 +124,6 @@ export class ProductEntity {
       throw new Error('Variation not found');
     }
 
-    // Проверка SKU уникальности (исключая текущую вариацию)
     if (
       this._variations.some(
         (v, i) => i !== index && v.sku === updatedVariation.sku,
@@ -147,7 +141,6 @@ export class ProductEntity {
     this.validate();
   }
 
-  // Бизнес-методы с валидацией
   updatePrice(newPrice: number, newComparePrice?: number | null): void {
     const originalPrice = this.price;
     const originalComparePrice = this.comparePrice;
