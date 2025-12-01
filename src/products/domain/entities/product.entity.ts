@@ -70,23 +70,27 @@ export class ProductEntity {
       errors.push('SKU must be unique across product and its variations');
     }
 
-    if (this.images.some((img) => !this.isValidUrl(img))) {
-      errors.push('All product images must be valid URLs');
-    }
+    // if (this.images.some((img) => !this.isValidUrl(img))) {
+    //   errors.push('All product images must be valid URLs');
+    // }
 
     if (errors.length > 0) {
       throw new Error(`Product validation failed: ${errors.join(', ')}`);
     }
   }
 
-  private isValidUrl(url: string): boolean {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }
+  // private isValidUrl(url: string): boolean {
+  //   if (url.startsWith('/') || url.endsWith('.png') || url.endsWith('.jpg')) {
+  //     return true;
+  //   }
+
+  //   try {
+  //     new URL(url);
+  //     return true;
+  //   } catch {
+  //     return false;
+  //   }
+  // }
 
   get variations(): ReadonlyArray<ProductVariation> {
     return [...this._variations];
