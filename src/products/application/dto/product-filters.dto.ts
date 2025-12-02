@@ -11,6 +11,7 @@ import { Type } from 'class-transformer';
 export class ProductFiltersDto {
   @ApiProperty({ required: false, type: [String] })
   @IsArray()
+  @Type(() => String)
   @IsString({ each: true })
   @IsOptional()
   categoryIds?: string[];
