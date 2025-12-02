@@ -7,7 +7,6 @@ import {
   Put,
   Delete,
   HttpCode,
-  Query,
 } from '@nestjs/common';
 import { ProductApplication } from './application/product.service';
 import { ProductMapper } from './application/mappers/product.mapper';
@@ -16,12 +15,11 @@ import {
   ProductVariationCreateDto,
 } from './application/dto/product-create.dto';
 import { ProductResponseDto } from './application/dto/product-response.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductFiltersDto } from './application/dto/product-filters.dto';
 
 import {
   ApiCreateProduct,
-  ApiGetAllProducts,
   ApiGetProductById,
   ApiGetProductBySlug,
   ApiGetProductsByCategory,
@@ -47,10 +45,10 @@ export class ProductsController {
     return ProductMapper.toResponse(createdProduct);
   }
 
-  @Get()
-  @ApiGetAllProducts()
-  async findAll(
-    @Query() filters: ProductFiltersDto,
+  @Post('search')
+  @ApiOperation({ summary: 'Поиск товаров с фильтрами' })
+  async searchProducts(
+    @Body() filters: ProductFiltersDto,
   ): Promise<ProductResponseDto[]> {
     const products = await this.productApplication.getAll(filters);
     return products.map((product) => ProductMapper.toResponse(product));
