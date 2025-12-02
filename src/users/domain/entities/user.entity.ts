@@ -13,16 +13,14 @@ export class UserEntity {
     this.validate();
   }
 
-  // ✅ Безопасный доступ
   async checkPassword(plainPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, this._password);
   }
 
   getPasswordHash(): string {
-    return this._password; // Только для внутреннего использования
+    return this._password;
   }
 
-  // ✅ Валидация
   private validate(): void {
     if (!this.login?.trim()) {
       throw new Error('Login is required');

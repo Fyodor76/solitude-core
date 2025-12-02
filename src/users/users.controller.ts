@@ -23,14 +23,14 @@ import {
   ApiUpdateUser,
 } from 'src/common/swagger/users.decorators';
 
-@ApiTags('Users')  
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersApplication: UserAplication) {}
 
   @Post()
   @HttpCode(201)
-  @ApiCreateUser() // ✅ Чистый и понятный декоратор
+  @ApiCreateUser()
   async create(@Body() user: UserCreateDto) {
     const userEntity = await UserMapper.toEntity(user);
     const createdUser = await this.usersApplication.create(userEntity);
@@ -38,7 +38,7 @@ export class UsersController {
   }
 
   @Get('login/:login')
-  @ApiGetUserByLogin() // ✅ Документация для поиска по логину
+  @ApiGetUserByLogin()
   async getByLogin(@Param('login') login: string) {
     const user = await this.usersApplication.getUserByLogin(login);
     return UserMapper.toResponse(user);
@@ -46,7 +46,7 @@ export class UsersController {
 
   @Auth()
   @Get(':id')
-  @ApiGetUserById() // ✅ Документация для поиска по ID
+  @ApiGetUserById()
   async getById(@Param('id') id: string) {
     // TODO: Добавить метод в UserAplication
     // const user = await this.usersApplication.getById(id);
@@ -55,7 +55,7 @@ export class UsersController {
 
   @Auth()
   @Get()
-  @ApiGetAllUsers() // ✅ Документация для получения всех пользователей
+  @ApiGetAllUsers()
   async getAll() {
     // TODO: Добавить метод в UserAplication
     // const users = await this.usersApplication.getAll();
@@ -64,7 +64,7 @@ export class UsersController {
 
   @Auth()
   @Put(':id')
-  @ApiUpdateUser() // ✅ Документация для обновления
+  @ApiUpdateUser()
   async update(@Param('id') id: string, @Body() userDto: UserCreateDto) {
     // TODO: Добавить метод в UserAplication
     // const userEntity = await UserMapper.toEntity(userDto, id);
@@ -74,7 +74,7 @@ export class UsersController {
 
   @Auth()
   @Delete(':id')
-  @ApiDeleteUser() // ✅ Документация для удаления
+  @ApiDeleteUser()
   async delete(@Param('id') id: string) {
     // TODO: Добавить метод в UserAplication
     // await this.usersApplication.delete(id);

@@ -30,12 +30,10 @@ export class ProductApplication {
       throwConflict('Product with this slug already exists');
     }
 
-    // Check if SKU already exists
-    // Note: You might want to add a findBySku method to repository
-    // const existingBySku = await this.productRepository.findBySku(product.sku);
-    // if (existingBySku) {
-    //   throwConflict('Product with this SKU already exists');
-    // }
+    const existingBySku = await this.productRepository.findBySku(product.sku);
+    if (existingBySku) {
+      throwConflict('Product with this SKU already exists');
+    }
 
     return await this.productRepository.create(product);
   }

@@ -105,6 +105,18 @@ export class SequelizeProductRepository implements ProductRepository {
     }
   }
 
+  async findBySku(sku: string): Promise<ProductEntity | null> {
+    const productModel = await this.productModel.findOne({
+      where: { sku },
+    });
+
+    if (!productModel) {
+      return null;
+    }
+
+    return this.buildProductEntity(productModel);
+  }
+
   async findById(id: string): Promise<ProductEntity> {
     const found = await this.productModel.findByPk(id, {
       include: [

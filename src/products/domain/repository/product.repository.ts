@@ -4,6 +4,7 @@ import { ProductEntity, ProductVariation } from '../entities/product.entity';
 export interface ProductRepository {
   create(product: ProductEntity): Promise<ProductEntity>;
   findById(id: string): Promise<ProductEntity>;
+  findBySku(sku: string): Promise<ProductEntity | null>;
   findBySlug(slug: string): Promise<ProductEntity>;
   findByCategory(categoryId: string): Promise<ProductEntity[]>;
   findByBrand(brand: string): Promise<ProductEntity[]>;
