@@ -174,8 +174,10 @@ export class SequelizeProductRepository implements ProductRepository {
       where.isActive = filters.isActive;
     }
 
-    if (filters?.categoryId) {
-      where.categoryId = filters.categoryId;
+    if (filters?.categoryIds && filters.categoryIds.length > 0) {
+      where.categoryId = {
+        [Op.in]: filters.categoryIds,
+      };
     }
 
     if (filters?.brand) {
@@ -197,8 +199,26 @@ export class SequelizeProductRepository implements ProductRepository {
       ];
     }
 
-    if (filters?.sortBy) {
-      order.push([filters.sortBy, filters.sortOrder || 'ASC']);
+    if (filters?.sort) {
+      switch (filters.sort) {
+        case 'newest':
+          order.push(['createdAt', 'DESC']);
+          break;
+        case 'price_asc':
+          order.push(['price', 'ASC']);
+          break;
+        case 'price_desc':
+          order.push(['price', 'DESC']);
+          break;
+        case 'name_asc':
+          order.push(['name', 'ASC']);
+          break;
+        case 'name_desc':
+          order.push(['name', 'DESC']);
+          break;
+        default:
+          order.push(['createdAt', 'DESC']);
+      }
     } else {
       order.push(['createdAt', 'DESC']);
     }

@@ -1,12 +1,19 @@
-import { IsOptional, IsNumber, IsBoolean, IsString } from 'class-validator';
+import {
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsString,
+  IsArray,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class ProductFiltersDto {
-  @ApiProperty({ required: false })
-  @IsString()
+  @ApiProperty({ required: false, type: [String] })
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  categoryId?: string;
+  categoryIds?: string[];
 
   @ApiProperty({ required: false })
   @IsString()
@@ -50,17 +57,11 @@ export class ProductFiltersDto {
 
   @ApiProperty({
     required: false,
-    enum: ['name', 'price', 'createdAt', 'updatedAt'],
+    enum: ['newest', 'price_asc', 'price_desc', 'name_asc', 'name_desc'],
+    description:
+      'Сортировка: newest, price_asc, price_desc, name_asc, name_desc',
   })
   @IsString()
   @IsOptional()
-  sortBy?: string;
-
-  @ApiProperty({
-    required: false,
-    enum: ['ASC', 'DESC'],
-  })
-  @IsString()
-  @IsOptional()
-  sortOrder?: 'ASC' | 'DESC';
+  sort?: string;
 }
