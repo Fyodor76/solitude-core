@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { UniversalExceptionsFilter } from './common/filters/universal-all-exceptions.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new UniversalExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const config = new DocumentBuilder().setTitle('Solitude core').build();
 

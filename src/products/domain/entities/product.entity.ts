@@ -1,3 +1,5 @@
+import { throwBadRequest } from 'src/common/exceptions/http-exception.helper';
+
 export class ProductEntity {
   private _variations: ProductVariation[] = [];
 
@@ -75,22 +77,9 @@ export class ProductEntity {
     // }
 
     if (errors.length > 0) {
-      throw new Error(`Product validation failed: ${errors.join(', ')}`);
+      throwBadRequest(`Product validation failed: ${errors.join(', ')}`);
     }
   }
-
-  // private isValidUrl(url: string): boolean {
-  //   if (url.startsWith('/') || url.endsWith('.png') || url.endsWith('.jpg')) {
-  //     return true;
-  //   }
-
-  //   try {
-  //     new URL(url);
-  //     return true;
-  //   } catch {
-  //     return false;
-  //   }
-  // }
 
   get variations(): ReadonlyArray<ProductVariation> {
     return [...this._variations];
@@ -157,7 +146,6 @@ export class ProductEntity {
       this.validate();
       this.updatedAt = new Date();
     } catch (error) {
-      // Откатываем изменения при ошибке валидации
       this.price = originalPrice;
       this.comparePrice = originalComparePrice;
       throw error;

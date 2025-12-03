@@ -30,7 +30,7 @@ export const throwInternal = (
     if (process.env.NODE_ENV !== 'production') {
       throw new InternalServerErrorException({
         status: 500,
-        message: error.message, // <-- Показывай реальное сообщение
+        message: error.message,
       });
     }
 

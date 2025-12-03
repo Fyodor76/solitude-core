@@ -9,6 +9,11 @@ import { VariationAttributeModel } from './infrastructure/orm/variation-attribut
 import { CategoriesModule } from '../categories/categories.module';
 import { ProductAttributeLinkModel } from './infrastructure/orm/product-attribute-link.entity';
 import { ProductAttributesModule } from 'src/product-attributes/product-attributes.module';
+import { SkuValidator } from './application/validators/sku.validator';
+import { CategoryValidator } from './application/validators/category.validator';
+import { AttributeValidator } from './application/validators/attribute.validator';
+import { VariationValidator } from './application/validators/variation.validator';
+import { ProductValidator } from './application/validators/product.validator';
 
 @Module({
   imports: [
@@ -22,6 +27,12 @@ import { ProductAttributesModule } from 'src/product-attributes/product-attribut
     CategoriesModule,
   ],
   providers: [
+    SkuValidator,
+    CategoryValidator,
+    AttributeValidator,
+    VariationValidator,
+    ProductValidator,
+
     ProductApplication,
     {
       provide: 'ProductRepository',
