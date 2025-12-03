@@ -26,6 +26,10 @@ export interface ProductAttributeRepository {
     attributeId: string,
     slug: string,
   ): Promise<AttributeValueEntity>;
+  findValuesBySlugs(
+    attributeId: string,
+    slugs: string[],
+  ): Promise<AttributeValueEntity[]>;
   updateValue(value: AttributeValueEntity): Promise<AttributeValueEntity>;
   deleteValue(id: string): Promise<void>;
   deleteValuesByAttributeId(attributeId: string): Promise<void>;

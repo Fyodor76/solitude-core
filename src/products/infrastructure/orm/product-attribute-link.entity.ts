@@ -31,7 +31,11 @@ export class ProductAttributeLinkModel extends Model<ProductAttributeLinkModel> 
   })
   attributeId: string;
 
-  @Column({ type: DataType.JSON, allowNull: false })
+  @Column({
+    type: DataType.JSON,
+    allowNull: false,
+    defaultValue: [],
+  })
   values: string[];
 
   @Column({ type: DataType.DATE, defaultValue: DataType.NOW })

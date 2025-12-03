@@ -206,7 +206,21 @@ export class ProductAttribute {
   constructor(
     public attributeId: string,
     public values: string[],
-  ) {}
+  ) {
+    this.validate();
+  }
+
+  private validate(): void {
+    if (!this.attributeId?.trim()) {
+      throw new Error('Attribute ID is required');
+    }
+    if (!Array.isArray(this.values)) {
+      throw new Error('Value slugs must be an array');
+    }
+    if (this.values.length === 0) {
+      throw new Error('At least one value must be selected');
+    }
+  }
 }
 
 export class ProductVariation {
@@ -277,6 +291,6 @@ export class ProductVariation {
 export class VariationAttribute {
   constructor(
     public attributeId: string,
-    public valueSlug: string,
+    public values: string[],
   ) {}
 }

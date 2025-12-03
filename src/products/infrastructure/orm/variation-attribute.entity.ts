@@ -34,9 +34,9 @@ export class VariationAttributeModel extends Model<VariationAttributeModel> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    field: 'valueSlug',
+    field: 'values',
   })
-  valueSlug: string;
+  values: string[];
 
   @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
   createdAt: Date;

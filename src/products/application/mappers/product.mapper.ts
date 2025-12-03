@@ -35,8 +35,7 @@ export class ProductMapper {
             variation.stock || 0,
             variation.images || [],
             variation.attributes.map(
-              (attr) =>
-                new VariationAttribute(attr.attributeId, attr.valueSlug),
+              (attr) => new VariationAttribute(attr.attributeId, attr.values),
             ),
             true,
           ),
@@ -84,7 +83,7 @@ export class ProductMapper {
             (attr) =>
               new VariationAttributeResponseDto({
                 attributeId: attr.attributeId,
-                valueSlug: attr.valueSlug,
+                values: attr.values,
               }),
           ),
           isActive: variation.isActive,
@@ -119,7 +118,7 @@ export class ProductMapper {
     id?: string,
   ): ProductVariation {
     const attributes = dto.attributes.map(
-      (attr) => new VariationAttribute(attr.attributeId, attr.valueSlug),
+      (attr) => new VariationAttribute(attr.attributeId, attr.values),
     );
 
     return new ProductVariation(

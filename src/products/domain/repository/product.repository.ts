@@ -5,6 +5,9 @@ export interface ProductRepository {
   create(product: ProductEntity): Promise<ProductEntity>;
   findById(id: string): Promise<ProductEntity>;
   findBySku(sku: string): Promise<ProductEntity | null>;
+  findVariationBySku(
+    sku: string,
+  ): Promise<{ productId: string; variationId: string } | null>;
   findBySlug(slug: string): Promise<ProductEntity>;
   findByCategory(categoryId: string): Promise<ProductEntity[]>;
   findByBrand(brand: string): Promise<ProductEntity[]>;

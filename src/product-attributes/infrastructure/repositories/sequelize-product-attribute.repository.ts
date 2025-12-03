@@ -11,6 +11,7 @@ import {
 import { AttributeValueEntity } from '../../domain/entities/attribute-value.entity';
 import { ProductAttributeModel } from '../orm/product-attribute.entity';
 import { AttributeValueModel } from '../orm/attribute-value.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class SequelizeProductAttributeRepository
@@ -55,6 +56,28 @@ export class SequelizeProductAttributeRepository
     });
     if (!found) return null;
     return this.buildAttributeEntity(found);
+  }
+
+  async findValuesBySlugs(
+    attributeId: string,
+    slugs: string[],
+  ): Promise<AttributeValueEntity[]> {
+    if (!slugs || slugs.length === 0) {
+      return [];
+    }
+
+    const values = await this.valueModel.findAll({
+      where: {
+        attributeId,
+        slug: {
+          [Op.in]: slugs,
+        },
+      },
+      include: [ProductAttributeModel],
+      order: [['sortOrder', 'ASC']],
+    });
+
+    return values.map((value) => this.buildValueEntity(value));
   }
 
   async findAttributesByType(

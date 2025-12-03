@@ -16,9 +16,9 @@ export class VariationAttributeCreateDto {
   attributeId: string;
 
   @ApiProperty()
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  valueSlug: string;
+  values: string[];
 }
 
 export class ProductVariationCreateDto {

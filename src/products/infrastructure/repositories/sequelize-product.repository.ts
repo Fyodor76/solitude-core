@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { ProductRepository } from '../../domain/repository/product.repository';
 import {
   ProductAttribute,
@@ -9,7 +10,6 @@ import {
 } from '../../domain/entities/product.entity';
 import { ProductModel } from '../orm/product.entity';
 import { ProductVariationModel } from '../orm/product-variation.entity';
-import { Op } from 'sequelize';
 import { VariationAttributeModel } from '../orm/variation-attribute.entity';
 import { ProductAttributeLinkModel } from '../orm/product-attribute-link.entity';
 import { ProductFiltersDto } from 'src/products/application/dto/product-filters.dto';
@@ -31,6 +31,7 @@ export class SequelizeProductRepository implements ProductRepository {
     const transaction = await this.productModel.sequelize.transaction();
 
     try {
+      // Создание основного продукта
       const created = await this.productModel.create(
         {
           id: product.id,
@@ -51,20 +52,21 @@ export class SequelizeProductRepository implements ProductRepository {
         { transaction },
       );
 
+      // Создание связей с атрибутами продукта
       if (product.attributes.length > 0) {
         const productAttributeLinksData = product.attributes.map((attr) => ({
           productId: created.id,
           attributeId: attr.attributeId,
           values: attr.values,
         }));
+
         await this.productAttributeLinkModel.bulkCreate(
           productAttributeLinksData,
-          {
-            transaction,
-          },
+          { transaction },
         );
       }
 
+      // Создание вариаций и их атрибутов
       if (product.variations.length > 0) {
         for (const variation of product.variations) {
           const createdVariation = await this.variationModel.create(
@@ -86,9 +88,10 @@ export class SequelizeProductRepository implements ProductRepository {
               (attr) => ({
                 variationId: createdVariation.id,
                 attributeId: attr.attributeId,
-                valueSlug: attr.valueSlug,
+                values: attr.values,
               }),
             );
+
             await this.variationAttributeModel.bulkCreate(
               variationAttributesData,
               { transaction },
@@ -108,13 +111,32 @@ export class SequelizeProductRepository implements ProductRepository {
   async findBySku(sku: string): Promise<ProductEntity | null> {
     const productModel = await this.productModel.findOne({
       where: { sku },
+      include: [
+        {
+          model: ProductVariationModel,
+          include: [VariationAttributeModel],
+        },
+        ProductAttributeLinkModel,
+      ],
     });
 
-    if (!productModel) {
-      return null;
-    }
+    return productModel ? this.buildProductEntity(productModel) : null;
+  }
 
-    return this.buildProductEntity(productModel);
+  async findVariationBySku(
+    sku: string,
+  ): Promise<{ productId: string; variationId: string } | null> {
+    const variation = await this.variationModel.findOne({
+      where: { sku },
+      attributes: ['id', 'productId'],
+    });
+
+    if (!variation) return null;
+
+    return {
+      productId: variation.productId,
+      variationId: variation.id,
+    };
   }
 
   async findById(id: string): Promise<ProductEntity> {
@@ -127,8 +149,7 @@ export class SequelizeProductRepository implements ProductRepository {
         ProductAttributeLinkModel,
       ],
     });
-    if (!found) return null;
-    return this.buildProductEntity(found);
+    return found ? this.buildProductEntity(found) : null;
   }
 
   async findBySlug(slug: string): Promise<ProductEntity> {
@@ -142,8 +163,7 @@ export class SequelizeProductRepository implements ProductRepository {
         ProductAttributeLinkModel,
       ],
     });
-    if (!found) return null;
-    return this.buildProductEntity(found);
+    return found ? this.buildProductEntity(found) : null;
   }
 
   async findByCategory(categoryId: string): Promise<ProductEntity[]> {
@@ -182,6 +202,7 @@ export class SequelizeProductRepository implements ProductRepository {
     const where: any = {};
     const order: any = [];
 
+    // Фильтры
     if (filters?.isActive !== undefined) {
       where.isActive = filters.isActive;
     }
@@ -211,6 +232,7 @@ export class SequelizeProductRepository implements ProductRepository {
       ];
     }
 
+    // Сортировка
     if (filters?.sort) {
       switch (filters.sort) {
         case 'newest':
@@ -235,6 +257,7 @@ export class SequelizeProductRepository implements ProductRepository {
       order.push(['createdAt', 'DESC']);
     }
 
+    // Фильтр по цене
     if (filters?.minPrice !== undefined || filters?.maxPrice !== undefined) {
       where.price = {};
       if (filters.minPrice !== undefined) {
@@ -245,25 +268,19 @@ export class SequelizeProductRepository implements ProductRepository {
       }
     }
 
-    try {
-      const products = await this.productModel.findAll({
-        where,
-        order,
-        include: [
-          {
-            model: ProductVariationModel,
-            include: [VariationAttributeModel],
-          },
-          ProductAttributeLinkModel,
-        ],
-      });
+    const products = await this.productModel.findAll({
+      where,
+      order,
+      include: [
+        {
+          model: ProductVariationModel,
+          include: [VariationAttributeModel],
+        },
+        ProductAttributeLinkModel,
+      ],
+    });
 
-      return products.map((product) => this.buildProductEntity(product));
-    } catch (error) {
-      console.error('❌ FIND ALL ERROR:', error);
-      console.error('ERROR STACK:', error.stack);
-      throw error;
-    }
+    return products.map((product) => this.buildProductEntity(product));
   }
 
   async update(product: ProductEntity): Promise<ProductEntity> {
@@ -295,22 +312,23 @@ export class SequelizeProductRepository implements ProductRepository {
         return null;
       }
 
+      // Удаляем старые связи с атрибутами
       await this.productAttributeLinkModel.destroy({
         where: { productId: product.id },
         transaction,
       });
 
+      // Создаем новые связи с атрибутами
       if (product.attributes.length > 0) {
         const productAttributeLinksData = product.attributes.map((attr) => ({
           productId: product.id,
           attributeId: attr.attributeId,
           values: attr.values,
         }));
+
         await this.productAttributeLinkModel.bulkCreate(
           productAttributeLinksData,
-          {
-            transaction,
-          },
+          { transaction },
         );
       }
 
@@ -351,8 +369,9 @@ export class SequelizeProductRepository implements ProductRepository {
         const variationAttributesData = variation.attributes.map((attr) => ({
           variationId: createdVariation.id,
           attributeId: attr.attributeId,
-          valueSlug: attr.valueSlug,
+          values: attr.values,
         }));
+
         await this.variationAttributeModel.bulkCreate(variationAttributesData, {
           transaction,
         });
@@ -391,17 +410,20 @@ export class SequelizeProductRepository implements ProductRepository {
         return null;
       }
 
+      // Удаляем старые атрибуты вариации
       await this.variationAttributeModel.destroy({
         where: { variationId: variation.id },
         transaction,
       });
 
+      // Создаем новые атрибуты вариации
       if (variation.attributes.length > 0) {
         const variationAttributesData = variation.attributes.map((attr) => ({
           variationId: variation.id,
           attributeId: attr.attributeId,
-          valueSlug: attr.valueSlug,
+          values: attr.values,
         }));
+
         await this.variationAttributeModel.bulkCreate(variationAttributesData, {
           transaction,
         });
@@ -476,7 +498,7 @@ export class SequelizeProductRepository implements ProductRepository {
   private buildVariationEntity(model: ProductVariationModel): ProductVariation {
     const attributes = model.attributes
       ? model.attributes.map(
-          (attr) => new VariationAttribute(attr.attributeId, attr.valueSlug),
+          (attr) => new VariationAttribute(attr.attributeId, attr.values),
         )
       : [];
 

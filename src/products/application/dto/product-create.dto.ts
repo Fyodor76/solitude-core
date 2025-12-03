@@ -7,20 +7,28 @@ import {
   IsArray,
   ValidateNested,
   IsUrl,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ProductAttributeDto {
-  @ApiProperty({ example: 'attr-color-123' })
-  @IsString()
+  @ApiProperty({
+    description: 'ID атрибута',
+    example: 'a0dbee61-366d-4128-a20e-0f7b4938523a',
+  })
+  @IsUUID()
   @IsNotEmpty()
   attributeId: string;
 
-  @ApiProperty({ example: ['red', 'blue'] })
+  @ApiProperty({
+    description: 'Выбранные значения атрибута (сами значения, не ID)',
+    example: ['red', 'blue'],
+  })
   @IsArray()
   @IsString({ each: true })
-  values: string[];
+  @IsOptional()
+  values?: string[];
 }
 
 export class VariationAttributeDto {
@@ -29,10 +37,14 @@ export class VariationAttributeDto {
   @IsNotEmpty()
   attributeId: string;
 
-  @ApiProperty({ example: 'red' })
-  @IsString()
+  @ApiProperty({
+    example: ['red'],
+    description: 'Значения атрибута для вариации',
+  })
+  @IsArray()
+  @IsString({ each: true })
   @IsNotEmpty()
-  valueSlug: string;
+  values: string[]; // <-- тоже просто значения
 }
 
 export class ProductVariationCreateDto {

@@ -5,11 +5,11 @@ export class VariationAttributeResponseDto {
   attributeId: string;
 
   @ApiProperty()
-  valueSlug: string;
+  values: string[];
 
-  constructor(attribute: { attributeId: string; valueSlug: string }) {
+  constructor(attribute: { attributeId: string; values: string[] }) {
     this.attributeId = attribute.attributeId;
-    this.valueSlug = attribute.valueSlug;
+    this.values = attribute.values;
   }
 }
 
@@ -63,7 +63,10 @@ export class ProductAttributeResponseDto {
   @ApiProperty()
   attributeId: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: "Slug'и значений атрибута",
+    example: ['red', 'blue'],
+  })
   values: string[];
 
   constructor(attribute: { attributeId: string; values: string[] }) {
