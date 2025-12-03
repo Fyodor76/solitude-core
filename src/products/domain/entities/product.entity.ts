@@ -244,23 +244,10 @@ export class ProductVariation {
       errors.push('Variation stock cannot be negative');
     }
 
-    if (this.images.some((img) => !this.isValidUrl(img))) {
-      errors.push('All variation images must be valid URLs');
-    }
-
     if (errors.length > 0) {
       throw new Error(
         `ProductVariation validation failed: ${errors.join(', ')}`,
       );
-    }
-  }
-
-  private isValidUrl(url: string): boolean {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
     }
   }
 

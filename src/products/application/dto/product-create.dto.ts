@@ -6,7 +6,6 @@ import {
   IsBoolean,
   IsArray,
   ValidateNested,
-  IsUrl,
   IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
