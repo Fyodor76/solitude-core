@@ -67,9 +67,8 @@ export class ProductVariationCreateDto {
   @IsOptional()
   stock: number;
 
-  @ApiProperty({ example: ['https://example.com/red-tshirt.jpg'] })
+  @ApiProperty({ example: ['red-tshirt.jpg'] })
   @IsArray()
-  @IsUrl({}, { each: true })
   @IsOptional()
   images: string[];
 
