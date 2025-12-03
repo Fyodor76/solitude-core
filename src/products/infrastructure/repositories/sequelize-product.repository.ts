@@ -101,7 +101,12 @@ export class SequelizeProductRepository implements ProductRepository {
       }
 
       await transaction.commit();
-      return await this.findById(created.id);
+      try {
+        const createdProduct = await this.findById(created.id);
+        return createdProduct;
+      } catch (findError) {
+        throw findError;
+      }
     } catch (error) {
       await transaction.rollback();
       throw error;
