@@ -135,9 +135,8 @@ export class ProductCreateDto {
   @IsOptional()
   isFeatured: boolean;
 
-  @ApiProperty({ example: ['https://example.com/tshirt.jpg'] })
+  @ApiProperty({ example: ['tshirt.jpg'] })
   @IsArray()
-  @IsUrl({}, { each: true })
   @IsOptional()
   images: string[];
 
