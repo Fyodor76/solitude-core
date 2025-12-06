@@ -8,6 +8,7 @@ import {
   BadRequestException,
   Get,
   Body,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileStorageService } from './file-storage.service';
@@ -23,6 +24,8 @@ import {
   FileUploadResponseDto,
   FileUrlResponseDto,
 } from './application/dto/dto/file-operations.dto';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { FileUrlQueryDto } from './application/dto/dto/file-url-query.dto';
 
 @ApiTags('cdn')
 @Controller('cdn')
@@ -35,14 +38,18 @@ export class FileStorageController {
   async uploadFile(
     @UploadedFile() file: any,
     @Body() dto: FileOperationDto,
-  ): Promise<FileUploadResponseDto> {
+  ): Promise<BaseResponseDto<FileUploadResponseDto>> {
     if (!file) {
       throw new BadRequestException('File is required');
     }
 
     const result = await this.fileStorageService.uploadFile(file, dto.folder);
 
-    return new FileUploadResponseDto(result.fileId, result.url);
+    return new BaseResponseDto(
+      new FileUploadResponseDto(result.fileId, result.url),
+      undefined,
+      'File uploaded successfully',
+    );
   }
 
   @Delete(':fileId')
@@ -50,18 +57,24 @@ export class FileStorageController {
   async deleteFile(
     @Param('fileId') fileId: string,
     @Body() dto: FileOperationDto,
-  ): Promise<DeleteFileResponseDto> {
+  ): Promise<BaseResponseDto<DeleteFileResponseDto>> {
     await this.fileStorageService.deleteFile(fileId, dto.folder);
-    return new DeleteFileResponseDto();
+
+    return new BaseResponseDto(
+      new DeleteFileResponseDto(),
+      undefined,
+      'File deleted successfully',
+    );
   }
 
   @Get('url/:fileId')
   @ApiGetFileUrl()
   async getFileUrl(
     @Param('fileId') fileId: string,
-    @Body() dto: FileOperationDto,
-  ): Promise<FileUrlResponseDto> {
-    const url = this.fileStorageService.getFileUrl(fileId, dto.folder);
-    return new FileUrlResponseDto(fileId, url);
+    @Query() query: FileUrlQueryDto,
+  ): Promise<BaseResponseDto<FileUrlResponseDto>> {
+    const url = this.fileStorageService.getFileUrl(fileId, query.folder);
+
+    return new BaseResponseDto(new FileUrlResponseDto(fileId, url));
   }
 }

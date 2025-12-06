@@ -4,6 +4,8 @@ import {
   IsBoolean,
   IsString,
   IsArray,
+  Min,
+  Max,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -65,4 +67,30 @@ export class ProductFiltersDto {
   @IsString()
   @IsOptional()
   sort?: string;
+
+  @ApiProperty({
+    description: 'Номер страницы (начиная с 1)',
+    default: 1,
+    minimum: 1,
+    required: false,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  page?: number;
+
+  @ApiProperty({
+    description: 'Количество элементов на странице',
+    default: 20,
+    minimum: 1,
+    maximum: 100,
+    required: false,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  @IsOptional()
+  limit?: number;
 }

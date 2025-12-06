@@ -30,6 +30,10 @@ import {
   ApiUpdateProductVariation,
   ApiDeleteProductVariation,
 } from 'src/common/swagger/products.decorators';
+import {
+  BaseResponseDto,
+  PaginationMetaDto,
+} from 'src/common/dto/base-response.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -44,46 +48,58 @@ export class ProductsController {
     const createdProduct = await this.productApplication.create(productEntity);
     return ProductMapper.toResponse(createdProduct);
   }
-
+  // src/products/products.controller.ts
   @Post('search')
   @ApiOperation({ summary: 'Поиск товаров с фильтрами' })
   async searchProducts(
     @Body() filters: ProductFiltersDto,
-  ): Promise<ProductResponseDto[]> {
-    const products = await this.productApplication.getAll(filters);
-    return products.map((product) => ProductMapper.toResponse(product));
+  ): Promise<BaseResponseDto<ProductResponseDto[], PaginationMetaDto>> {
+    const result = await this.productApplication.getAll(filters);
+
+    return new BaseResponseDto(
+      result.data.map((product) => ProductMapper.toResponse(product)),
+      result.meta,
+    );
   }
 
   @Get(':id')
   @ApiGetProductById()
-  async findById(@Param('id') id: string): Promise<ProductResponseDto> {
+  async findById(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<ProductResponseDto>> {
     const product = await this.productApplication.getById(id);
-    return ProductMapper.toResponse(product);
+    return new BaseResponseDto(ProductMapper.toResponse(product));
   }
 
   @Get('slug/:slug')
   @ApiGetProductBySlug()
-  async findBySlug(@Param('slug') slug: string): Promise<ProductResponseDto> {
+  async findBySlug(
+    @Param('slug') slug: string,
+  ): Promise<BaseResponseDto<ProductResponseDto>> {
     const product = await this.productApplication.getBySlug(slug);
-    return ProductMapper.toResponse(product);
+    return new BaseResponseDto(ProductMapper.toResponse(product));
   }
 
   @Get('category/:categoryId')
   @ApiGetProductsByCategory()
   async findByCategory(
     @Param('categoryId') categoryId: string,
-  ): Promise<ProductResponseDto[]> {
+  ): Promise<BaseResponseDto<ProductResponseDto[]>> {
     const products = await this.productApplication.getByCategory(categoryId);
-    return products.map((product) => ProductMapper.toResponse(product));
+    return new BaseResponseDto(
+      products.map((product) => ProductMapper.toResponse(product)),
+    );
   }
 
   @Get('brand/:brand')
   @ApiGetProductsByBrand()
   async findByBrand(
     @Param('brand') brand: string,
-  ): Promise<ProductResponseDto[]> {
+  ): Promise<BaseResponseDto<ProductResponseDto[]>> {
     const products = await this.productApplication.getByBrand(brand);
-    return products.map((product) => ProductMapper.toResponse(product));
+    return new BaseResponseDto(
+      products.map((product) => ProductMapper.toResponse(product)),
+    );
   }
 
   @Put(':id')

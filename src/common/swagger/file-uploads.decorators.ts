@@ -6,6 +6,7 @@ import {
   ApiParam,
   ApiConsumes,
 } from '@nestjs/swagger';
+import { BaseResponseDtoSwagger } from './swagger-common-types.dto';
 
 export function ApiUploadFile() {
   return applyDecorators(
@@ -36,10 +37,15 @@ export function ApiUploadFile() {
     ApiResponse({
       status: 201,
       description: 'File successfully uploaded',
+      type: BaseResponseDtoSwagger<{ fileId: string; url: string }>,
       schema: {
         example: {
-          fileId: '1701234567890-abc123def456',
-          url: 'https://cdn.example.com/products/1701234567890-abc123def456',
+          success: true,
+          data: {
+            fileId: '1701234567890-abc123def456',
+            url: 'https://cdn.example.com/products/1701234567890-abc123def456',
+          },
+          message: 'File uploaded successfully',
         },
       },
     }),
@@ -47,35 +53,35 @@ export function ApiUploadFile() {
       status: 400,
       description: 'Validation error',
       schema: {
-        examples: {
-          'File required': {
-            value: {
-              statusCode: 400,
-              message: 'File is required',
-              error: 'Bad Request',
-            },
-          },
-          'Invalid file type': {
-            value: {
-              statusCode: 400,
-              message: 'Invalid file type. Only images are allowed',
-              error: 'Bad Request',
-            },
-          },
-          'File too large': {
-            value: {
-              statusCode: 400,
-              message: 'File size too large. Max 5MB allowed',
-              error: 'Bad Request',
-            },
-          },
-          'Upload failed': {
-            value: {
-              statusCode: 400,
-              message: 'File upload failed: [error details]',
-              error: 'Bad Request',
-            },
-          },
+        example: {
+          success: false,
+          statusCode: 400,
+          message: 'File is required',
+          error: 'Bad Request',
+        },
+      },
+    }),
+    ApiResponse({
+      status: 415,
+      description: 'Invalid file type',
+      schema: {
+        example: {
+          success: false,
+          statusCode: 415,
+          message: 'Invalid file type. Only images are allowed',
+          error: 'Unsupported Media Type',
+        },
+      },
+    }),
+    ApiResponse({
+      status: 413,
+      description: 'File too large',
+      schema: {
+        example: {
+          success: false,
+          statusCode: 413,
+          message: 'File size too large. Max 5MB allowed',
+          error: 'Payload Too Large',
         },
       },
     }),
@@ -110,8 +116,13 @@ export function ApiDeleteFile() {
     ApiResponse({
       status: 200,
       description: 'File successfully deleted',
+      type: BaseResponseDtoSwagger<{ message: string }>,
       schema: {
         example: {
+          success: true,
+          data: {
+            message: 'File deleted successfully',
+          },
           message: 'File deleted successfully',
         },
       },
@@ -121,6 +132,7 @@ export function ApiDeleteFile() {
       description: 'File deletion failed',
       schema: {
         example: {
+          success: false,
           statusCode: 400,
           message: 'File deletion failed',
           error: 'Bad Request',
@@ -129,8 +141,15 @@ export function ApiDeleteFile() {
     }),
     ApiResponse({
       status: 404,
-      description:
-        'File not found (S3 may return success even if file does not exist)',
+      description: 'File not found',
+      schema: {
+        example: {
+          success: false,
+          statusCode: 404,
+          message: 'File not found',
+          error: 'Not Found',
+        },
+      },
     }),
   );
 }
@@ -163,10 +182,26 @@ export function ApiGetFileUrl() {
     ApiResponse({
       status: 200,
       description: 'File URL generated successfully',
+      type: BaseResponseDtoSwagger<{ fileId: string; url: string }>,
       schema: {
         example: {
-          fileId: '1701234567890-abc123def456',
-          url: 'https://cdn.example.com/products/1701234567890-abc123def456',
+          success: true,
+          data: {
+            fileId: '1701234567890-abc123def456',
+            url: 'https://cdn.example.com/products/1701234567890-abc123def456',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'File not found',
+      schema: {
+        example: {
+          success: false,
+          statusCode: 404,
+          message: 'File not found',
+          error: 'Not Found',
         },
       },
     }),

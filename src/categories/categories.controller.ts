@@ -25,6 +25,7 @@ import {
   ApiDeactivateCategory,
   ApiUpdateCategory,
 } from 'src/common/swagger/categories.decorators';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -34,48 +35,64 @@ export class CategoriesController {
   @Post()
   @HttpCode(201)
   @ApiCreateCategory()
-  async create(@Body() dto: CategoryCreateDto): Promise<CategoryResponseDto> {
+  async create(
+    @Body() dto: CategoryCreateDto,
+  ): Promise<BaseResponseDto<CategoryResponseDto>> {
     const categoryEntity = CategoryMapper.toEntity(dto);
     const createdCategory =
       await this.categoryApplication.create(categoryEntity);
-    return CategoryMapper.toResponse(createdCategory);
+    return new BaseResponseDto(
+      CategoryMapper.toResponse(createdCategory),
+      undefined,
+      'Category created successfully',
+    );
   }
 
   @Get()
   @ApiGetAllCategories()
-  async findAll(): Promise<CategoryResponseDto[]> {
+  async findAll(): Promise<BaseResponseDto<CategoryResponseDto[]>> {
     const categories = await this.categoryApplication.getRootCategories();
-    return categories.map((category) => CategoryMapper.toResponse(category));
+    return new BaseResponseDto(
+      categories.map((category) => CategoryMapper.toResponse(category)),
+    );
   }
 
   @Get('collections')
   @ApiGetCollections()
-  async getCollections(): Promise<CategoryResponseDto[]> {
+  async getCollections(): Promise<BaseResponseDto<CategoryResponseDto[]>> {
     const collections = await this.categoryApplication.getCollections();
-    return collections.map((collection) =>
-      CategoryMapper.toResponse(collection),
+    return new BaseResponseDto(
+      collections.map((collection) => CategoryMapper.toResponse(collection)),
     );
   }
 
   @Get(':id')
   @ApiGetCategoryById()
-  async findById(@Param('id') id: string): Promise<CategoryResponseDto> {
+  async findById(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<CategoryResponseDto>> {
     const category = await this.categoryApplication.getById(id);
-    return CategoryMapper.toResponse(category);
+    return new BaseResponseDto(CategoryMapper.toResponse(category));
   }
 
   @Get('slug/:slug')
   @ApiGetCategoryBySlug()
-  async findBySlug(@Param('slug') slug: string): Promise<CategoryResponseDto> {
+  async findBySlug(
+    @Param('slug') slug: string,
+  ): Promise<BaseResponseDto<CategoryResponseDto>> {
     const category = await this.categoryApplication.getBySlug(slug);
-    return CategoryMapper.toResponse(category);
+    return new BaseResponseDto(CategoryMapper.toResponse(category));
   }
 
   @Get(':id/children')
   @ApiGetChildCategories()
-  async getChildren(@Param('id') id: string): Promise<CategoryResponseDto[]> {
+  async getChildren(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<CategoryResponseDto[]>> {
     const children = await this.categoryApplication.getChildCategories(id);
-    return children.map((child) => CategoryMapper.toResponse(child));
+    return new BaseResponseDto(
+      children.map((child) => CategoryMapper.toResponse(child)),
+    );
   }
 
   @Put(':id')
@@ -83,24 +100,40 @@ export class CategoriesController {
   async update(
     @Param('id') id: string,
     @Body() dto: CategoryCreateDto,
-  ): Promise<CategoryResponseDto> {
+  ): Promise<BaseResponseDto<CategoryResponseDto>> {
     const categoryEntity = CategoryMapper.toEntity(dto, id);
     const updatedCategory =
       await this.categoryApplication.update(categoryEntity);
-    return CategoryMapper.toResponse(updatedCategory);
+    return new BaseResponseDto(
+      CategoryMapper.toResponse(updatedCategory),
+      undefined,
+      'Category updated successfully',
+    );
   }
 
   @Delete(':id')
   @ApiDeleteCategory()
-  async delete(@Param('id') id: string): Promise<{ message: string }> {
+  async delete(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<{ message: string }>> {
     await this.categoryApplication.delete(id);
-    return { message: 'Category deleted successfully' };
+    return new BaseResponseDto(
+      { message: 'Category deleted successfully' },
+      undefined,
+      'Category deleted successfully',
+    );
   }
 
   @Patch(':id/deactivate')
   @ApiDeactivateCategory()
-  async deactivate(@Param('id') id: string): Promise<CategoryResponseDto> {
+  async deactivate(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<CategoryResponseDto>> {
     const deactivatedCategory = await this.categoryApplication.softDelete(id);
-    return CategoryMapper.toResponse(deactivatedCategory);
+    return new BaseResponseDto(
+      CategoryMapper.toResponse(deactivatedCategory),
+      undefined,
+      'Category deactivated successfully',
+    );
   }
 }

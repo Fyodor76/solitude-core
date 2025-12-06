@@ -31,7 +31,6 @@ export class SequelizeProductRepository implements ProductRepository {
     const transaction = await this.productModel.sequelize.transaction();
 
     try {
-      // Создание основного продукта
       const created = await this.productModel.create(
         {
           id: product.id,
@@ -52,7 +51,6 @@ export class SequelizeProductRepository implements ProductRepository {
         { transaction },
       );
 
-      // Создание связей с атрибутами продукта
       if (product.attributes.length > 0) {
         const productAttributeLinksData = product.attributes.map((attr) => ({
           productId: created.id,
@@ -66,7 +64,6 @@ export class SequelizeProductRepository implements ProductRepository {
         );
       }
 
-      // Создание вариаций и их атрибутов
       if (product.variations.length > 0) {
         for (const variation of product.variations) {
           const createdVariation = await this.variationModel.create(
@@ -203,77 +200,17 @@ export class SequelizeProductRepository implements ProductRepository {
     return products.map((product) => this.buildProductEntity(product));
   }
 
-  async findAll(filters?: ProductFiltersDto): Promise<ProductEntity[]> {
-    const where: any = {};
-    const order: any = [];
+  async findAll(
+    filters?: ProductFiltersDto,
+    pagination?: {
+      page: number;
+      limit: number;
+    },
+  ): Promise<ProductEntity[]> {
+    const where = this.buildWhereClause(filters);
+    const order = this.buildOrderClause(filters);
 
-    // Фильтры
-    if (filters?.isActive !== undefined) {
-      where.isActive = filters.isActive;
-    }
-
-    if (filters?.categoryIds && filters.categoryIds.length > 0) {
-      where.categoryId = {
-        [Op.in]: filters.categoryIds,
-      };
-    }
-
-    if (filters?.brand) {
-      where.brand = filters.brand;
-    }
-
-    if (filters?.inStock !== undefined) {
-      where.inStock = filters.inStock;
-    }
-
-    if (filters?.isFeatured !== undefined) {
-      where.isFeatured = filters.isFeatured;
-    }
-
-    if (filters?.search) {
-      where[Op.or] = [
-        { name: { [Op.iLike]: `%${filters.search}%` } },
-        { description: { [Op.iLike]: `%${filters.search}%` } },
-      ];
-    }
-
-    // Сортировка
-    if (filters?.sort) {
-      switch (filters.sort) {
-        case 'newest':
-          order.push(['createdAt', 'DESC']);
-          break;
-        case 'price_asc':
-          order.push(['price', 'ASC']);
-          break;
-        case 'price_desc':
-          order.push(['price', 'DESC']);
-          break;
-        case 'name_asc':
-          order.push(['name', 'ASC']);
-          break;
-        case 'name_desc':
-          order.push(['name', 'DESC']);
-          break;
-        default:
-          order.push(['createdAt', 'DESC']);
-      }
-    } else {
-      order.push(['createdAt', 'DESC']);
-    }
-
-    // Фильтр по цене
-    if (filters?.minPrice !== undefined || filters?.maxPrice !== undefined) {
-      where.price = {};
-      if (filters.minPrice !== undefined) {
-        where.price[Op.gte] = filters.minPrice;
-      }
-      if (filters.maxPrice !== undefined) {
-        where.price[Op.lte] = filters.maxPrice;
-      }
-    }
-
-    const products = await this.productModel.findAll({
+    const queryOptions: any = {
       where,
       order,
       include: [
@@ -283,9 +220,21 @@ export class SequelizeProductRepository implements ProductRepository {
         },
         ProductAttributeLinkModel,
       ],
-    });
+    };
 
+    if (pagination) {
+      const offset = (pagination.page - 1) * pagination.limit;
+      queryOptions.limit = pagination.limit;
+      queryOptions.offset = offset;
+    }
+
+    const products = await this.productModel.findAll(queryOptions);
     return products.map((product) => this.buildProductEntity(product));
+  }
+
+  async getTotalProducts(filters?: ProductFiltersDto): Promise<number> {
+    const where = this.buildWhereClause(filters);
+    return await this.productModel.count({ where });
   }
 
   async update(product: ProductEntity): Promise<ProductEntity> {
@@ -317,13 +266,11 @@ export class SequelizeProductRepository implements ProductRepository {
         return null;
       }
 
-      // Удаляем старые связи с атрибутами
       await this.productAttributeLinkModel.destroy({
         where: { productId: product.id },
         transaction,
       });
 
-      // Создаем новые связи с атрибутами
       if (product.attributes.length > 0) {
         const productAttributeLinksData = product.attributes.map((attr) => ({
           productId: product.id,
@@ -415,13 +362,11 @@ export class SequelizeProductRepository implements ProductRepository {
         return null;
       }
 
-      // Удаляем старые атрибуты вариации
       await this.variationAttributeModel.destroy({
         where: { variationId: variation.id },
         transaction,
       });
 
-      // Создаем новые атрибуты вариации
       if (variation.attributes.length > 0) {
         const variationAttributesData = variation.attributes.map((attr) => ({
           variationId: variation.id,
@@ -498,6 +443,74 @@ export class SequelizeProductRepository implements ProductRepository {
       model.createdAt,
       model.updatedAt,
     );
+  }
+
+  private buildOrderClause(filters?: ProductFiltersDto): any[] {
+    if (!filters?.sort) {
+      return [['createdAt', 'DESC']];
+    }
+
+    switch (filters.sort) {
+      case 'newest':
+        return [['createdAt', 'DESC']];
+      case 'price_asc':
+        return [['price', 'ASC']];
+      case 'price_desc':
+        return [['price', 'DESC']];
+      case 'name_asc':
+        return [['name', 'ASC']];
+      case 'name_desc':
+        return [['name', 'DESC']];
+      default:
+        return [['createdAt', 'DESC']];
+    }
+  }
+
+  private buildWhereClause(filters?: ProductFiltersDto): any {
+    if (!filters) return {};
+
+    const where: any = {};
+
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      where.categoryId = {
+        [Op.in]: filters.categoryIds,
+      };
+    }
+
+    if (filters.brand) {
+      where.brand = filters.brand;
+    }
+
+    if (filters.inStock !== undefined) {
+      where.inStock = filters.inStock;
+    }
+
+    if (filters.isFeatured !== undefined) {
+      where.isFeatured = filters.isFeatured;
+    }
+
+    if (filters.search) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${filters.search}%` } },
+        { description: { [Op.iLike]: `%${filters.search}%` } },
+      ];
+    }
+
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      where.price = {};
+      if (filters.minPrice !== undefined) {
+        where.price[Op.gte] = filters.minPrice;
+      }
+      if (filters.maxPrice !== undefined) {
+        where.price[Op.lte] = filters.maxPrice;
+      }
+    }
+
+    return where;
   }
 
   private buildVariationEntity(model: ProductVariationModel): ProductVariation {

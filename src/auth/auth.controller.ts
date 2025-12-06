@@ -11,6 +11,7 @@ import {
   ApiLogoutAll,
   ApiRefresh,
 } from 'src/common/swagger/auth.decorators';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,7 +24,9 @@ export class AuthController {
   async login(@Body() dto: AuthDto) {
     const { user, accessToken, refreshToken } =
       await this.authApplication.login(dto);
-    return AuthMapper.toResponse(user, accessToken, refreshToken);
+    return new BaseResponseDto(
+      AuthMapper.toResponse(user, accessToken, refreshToken),
+    );
   }
 
   @Auth()
@@ -32,7 +35,7 @@ export class AuthController {
   @ApiLogout()
   async logout(@Req() req) {
     const userId = req.user.id;
-    return this.authApplication.logout(userId);
+    return new BaseResponseDto(this.authApplication.logout(userId));
   }
 
   @Post('refresh')
@@ -40,7 +43,7 @@ export class AuthController {
   @ApiRefresh()
   async refresh(@Body() dto: RefreshTokenDto) {
     const tokens = await this.authApplication.refresh(dto.refreshToken);
-    return tokens;
+    return new BaseResponseDto(tokens);
   }
 
   @Auth()
@@ -49,6 +52,6 @@ export class AuthController {
   @ApiLogoutAll()
   async logoutAll(@Req() req) {
     const userId = req.user.id;
-    return this.authApplication.logoutAllDevices(userId);
+    return new BaseResponseDto(this.authApplication.logoutAllDevices(userId));
   }
 }

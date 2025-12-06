@@ -22,6 +22,7 @@ import {
   ApiGetUserByLogin,
   ApiUpdateUser,
 } from 'src/common/swagger/users.decorators';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -34,14 +35,14 @@ export class UsersController {
   async create(@Body() user: UserCreateDto) {
     const userEntity = await UserMapper.toEntity(user);
     const createdUser = await this.usersApplication.create(userEntity);
-    return UserMapper.toResponse(createdUser);
+    return new BaseResponseDto(UserMapper.toResponse(createdUser));
   }
 
   @Get('login/:login')
   @ApiGetUserByLogin()
   async getByLogin(@Param('login') login: string) {
     const user = await this.usersApplication.getUserByLogin(login);
-    return UserMapper.toResponse(user);
+    return new BaseResponseDto(UserMapper.toResponse(user));
   }
 
   @Auth()

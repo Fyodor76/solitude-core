@@ -11,6 +11,7 @@ import { ProductValidator } from './validators/product.validator';
 import { SkuValidator } from './validators/sku.validator';
 import { AttributeValidator } from './validators/attribute.validator';
 import { VariationValidator } from './validators/variation.validator';
+import { PaginationMetaDto } from 'src/common/dto/base-response.dto';
 
 @Injectable()
 export class ProductApplication {
@@ -52,8 +53,22 @@ export class ProductApplication {
     return await this.productRepository.findByBrand(brand);
   }
 
-  async getAll(filters?: ProductFiltersDto): Promise<ProductEntity[]> {
-    return await this.productRepository.findAll(filters);
+  // src/products/application/product.service.ts
+  async getAll(filters?: ProductFiltersDto): Promise<{
+    data: ProductEntity[];
+    meta: PaginationMetaDto;
+  }> {
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 20;
+
+    const [data, total] = await Promise.all([
+      this.productRepository.findAll(filters, { page, limit }),
+      this.productRepository.getTotalProducts(filters),
+    ]);
+
+    const meta = PaginationMetaDto.create(total, page, limit);
+
+    return { data, meta };
   }
 
   async update(product: ProductEntity): Promise<ProductEntity> {

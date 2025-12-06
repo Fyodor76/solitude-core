@@ -27,6 +27,7 @@ import {
   ApiUpdateProductAttribute,
   ApiDeleteProductAttribute,
 } from 'src/common/swagger/product-attributes.decorators';
+import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 
 @ApiTags('product-attributes')
 @Controller('product-attributes')
@@ -40,11 +41,16 @@ export class ProductAttributesController {
   @ApiCreateProductAttribute()
   async createAttribute(
     @Body() dto: ProductAttributeCreateDto,
-  ): Promise<ProductAttributeResponseDto> {
+  ): Promise<BaseResponseDto<ProductAttributeResponseDto>> {
     const attributeEntity = ProductAttributeMapper.toAttributeEntity(dto);
     const createdAttribute =
       await this.attributeApplication.createAttribute(attributeEntity);
-    return ProductAttributeMapper.toAttributeResponse(createdAttribute);
+
+    return new BaseResponseDto(
+      ProductAttributeMapper.toAttributeResponse(createdAttribute),
+      undefined,
+      'Product attribute created successfully',
+    );
   }
 
   @Post(':attributeId/values')
@@ -53,19 +59,27 @@ export class ProductAttributesController {
   async createValue(
     @Param('attributeId') attributeId: string,
     @Body() dto: AttributeValueCreateDto,
-  ) {
+  ): Promise<BaseResponseDto<any>> {
     const valueEntity = ProductAttributeMapper.toValueEntity(dto, attributeId);
     const createdValue =
       await this.attributeApplication.createValue(valueEntity);
-    return createdValue;
+
+    return new BaseResponseDto(
+      createdValue,
+      undefined,
+      'Attribute value created successfully',
+    );
   }
 
   @Get()
   @ApiGetAllProductAttributes()
-  async findAll(): Promise<ProductAttributeResponseDto[]> {
+  async findAll(): Promise<BaseResponseDto<ProductAttributeResponseDto[]>> {
     const attributes = await this.attributeApplication.getAllAttributes();
-    return attributes.map((attribute) =>
-      ProductAttributeMapper.toAttributeResponse(attribute),
+
+    return new BaseResponseDto(
+      attributes.map((attribute) =>
+        ProductAttributeMapper.toAttributeResponse(attribute),
+      ),
     );
   }
 
@@ -73,39 +87,52 @@ export class ProductAttributesController {
   @ApiGetProductAttributeById()
   async findById(
     @Param('id') id: string,
-  ): Promise<ProductAttributeResponseDto> {
+  ): Promise<BaseResponseDto<ProductAttributeResponseDto>> {
     const attribute = await this.attributeApplication.getAttributeById(id);
-    return ProductAttributeMapper.toAttributeResponse(attribute);
+
+    return new BaseResponseDto(
+      ProductAttributeMapper.toAttributeResponse(attribute),
+    );
   }
 
   @Get('slug/:slug')
   @ApiGetProductAttributeBySlug()
   async findBySlug(
     @Param('slug') slug: string,
-  ): Promise<ProductAttributeResponseDto> {
+  ): Promise<BaseResponseDto<ProductAttributeResponseDto>> {
     const attribute = await this.attributeApplication.getAttributeBySlug(slug);
-    return ProductAttributeMapper.toAttributeResponse(attribute);
+
+    return new BaseResponseDto(
+      ProductAttributeMapper.toAttributeResponse(attribute),
+    );
   }
 
   @Get('type/:type')
   @ApiGetProductAttributesByType()
   async findByType(
     @Param('type') type: string,
-  ): Promise<ProductAttributeResponseDto[]> {
+  ): Promise<BaseResponseDto<ProductAttributeResponseDto[]>> {
     const attributes = await this.attributeApplication.getAttributesByType(
       type as any,
     );
-    return attributes.map((attribute) =>
-      ProductAttributeMapper.toAttributeResponse(attribute),
+
+    return new BaseResponseDto(
+      attributes.map((attribute) =>
+        ProductAttributeMapper.toAttributeResponse(attribute),
+      ),
     );
   }
 
   @Get(':attributeId/values')
   @ApiGetAttributeValues()
-  async getValues(@Param('attributeId') attributeId: string) {
+  async getValues(
+    @Param('attributeId') attributeId: string,
+  ): Promise<BaseResponseDto<any[]>> {
+    // Замените any на конкретный DTO
     const values =
       await this.attributeApplication.getValuesByAttributeId(attributeId);
-    return values;
+
+    return new BaseResponseDto(values);
   }
 
   @Put(':id')
@@ -113,17 +140,29 @@ export class ProductAttributesController {
   async updateAttribute(
     @Param('id') id: string,
     @Body() dto: ProductAttributeCreateDto,
-  ): Promise<ProductAttributeResponseDto> {
+  ): Promise<BaseResponseDto<ProductAttributeResponseDto>> {
     const attributeEntity = ProductAttributeMapper.toAttributeEntity(dto, id);
     const updatedAttribute =
       await this.attributeApplication.updateAttribute(attributeEntity);
-    return ProductAttributeMapper.toAttributeResponse(updatedAttribute);
+
+    return new BaseResponseDto(
+      ProductAttributeMapper.toAttributeResponse(updatedAttribute),
+      undefined,
+      'Product attribute updated successfully',
+    );
   }
 
   @Delete(':id')
   @ApiDeleteProductAttribute()
-  async deleteAttribute(@Param('id') id: string): Promise<{ message: string }> {
+  async deleteAttribute(
+    @Param('id') id: string,
+  ): Promise<BaseResponseDto<{ message: string }>> {
     await this.attributeApplication.deleteAttribute(id);
-    return { message: 'Product attribute deleted successfully' };
+
+    return new BaseResponseDto(
+      { message: 'Product attribute deleted successfully' },
+      undefined,
+      'Product attribute deleted successfully',
+    );
   }
 }

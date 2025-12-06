@@ -11,7 +11,14 @@ export interface ProductRepository {
   findBySlug(slug: string): Promise<ProductEntity>;
   findByCategory(categoryId: string): Promise<ProductEntity[]>;
   findByBrand(brand: string): Promise<ProductEntity[]>;
-  findAll(filters?: ProductFiltersDto): Promise<ProductEntity[]>;
+  findAll(
+    filters?: ProductFiltersDto,
+    pagination?: {
+      page: number;
+      limit: number;
+    },
+  ): Promise<ProductEntity[]>;
+  getTotalProducts(filters?: ProductFiltersDto): Promise<number>;
   update(product: ProductEntity): Promise<ProductEntity>;
   delete(id: string): Promise<void>;
 

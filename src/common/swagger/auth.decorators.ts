@@ -7,6 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthResponseDto } from 'src/auth/dto/auth-response.dto';
 import { AuthDto, RefreshTokenDto } from 'src/auth/dto/auth.dto';
+import { BaseResponseDtoSwagger } from './swagger-common-types.dto';
 
 export function ApiLogin() {
   return applyDecorators(
@@ -18,7 +19,7 @@ export function ApiLogin() {
     ApiResponse({
       status: 201,
       description: 'Successfully authenticated',
-      type: AuthResponseDto,
+      type: BaseResponseDtoSwagger<AuthResponseDto>,
     }),
     ApiResponse({
       status: 401,
@@ -64,8 +65,10 @@ export function ApiRefresh() {
       description: 'Tokens successfully refreshed',
       schema: {
         example: {
-          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          data: {
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+            refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
         },
       },
     }),
@@ -76,7 +79,6 @@ export function ApiRefresh() {
   );
 }
 
-// ✅ Для logout-all эндпоинта
 export function ApiLogoutAll() {
   return applyDecorators(
     ApiBearerAuth(),
@@ -88,7 +90,9 @@ export function ApiLogoutAll() {
       status: 200,
       description: 'Successfully logged out from all devices',
       schema: {
-        example: { message: 'Logged out from all devices' },
+        example: {
+          data: { message: 'Logged out from all devices' },
+        },
       },
     }),
     ApiResponse({
