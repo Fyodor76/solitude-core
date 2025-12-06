@@ -18,7 +18,7 @@ export function ApiCreateCategory() {
     ApiResponse({
       status: 201,
       description: 'Category successfully created',
-      type: BaseResponseDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
       schema: {
         example: {
           success: true,
