@@ -3,10 +3,6 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { CategoryCreateDto } from 'src/categories/application/dto/category-create.dto';
 import { CategoryResponseDto } from 'src/categories/application/dto/category-response.dto';
-import {
-  BaseResponseArrayDtoSwagger,
-  BaseResponseDtoSwagger,
-} from './swagger-common-types.dto';
 
 export function ApiCreateCategory() {
   return applyDecorators(
@@ -78,7 +74,7 @@ export function ApiGetAllCategories() {
     ApiResponse({
       status: 200,
       description: 'Categories retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
       schema: {
         example: {
           success: true,
@@ -127,7 +123,7 @@ export function ApiGetCollections() {
     ApiResponse({
       status: 200,
       description: 'Collections retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
     }),
   );
 }
@@ -147,7 +143,7 @@ export function ApiGetCategoryById() {
     ApiResponse({
       status: 200,
       description: 'Category found',
-      type: BaseResponseDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -178,7 +174,7 @@ export function ApiGetCategoryBySlug() {
     ApiResponse({
       status: 200,
       description: 'Category found',
-      type: BaseResponseDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -201,7 +197,7 @@ export function ApiGetChildCategories() {
     ApiResponse({
       status: 200,
       description: 'Child categories retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -224,7 +220,6 @@ export function ApiDeleteCategory() {
     ApiResponse({
       status: 200,
       description: 'Category deleted successfully',
-      type: BaseResponseDtoSwagger<{ message: string }>,
       schema: {
         example: {
           success: true,
@@ -265,7 +260,7 @@ export function ApiDeactivateCategory() {
     ApiResponse({
       status: 200,
       description: 'Category deactivated successfully',
-      type: BaseResponseDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -289,7 +284,7 @@ export function ApiUpdateCategory() {
     ApiResponse({
       status: 200,
       description: 'Category updated successfully',
-      type: BaseResponseDtoSwagger<CategoryResponseDto>,
+      type: CategoryResponseDto,
     }),
     ApiResponse({
       status: 404,

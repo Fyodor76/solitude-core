@@ -4,10 +4,6 @@ import {
   CallbackFormDto,
   FormSubmissionResponseDto,
 } from 'src/form-submissions/application/dto/form-submission.dto';
-import {
-  BaseResponseArrayDtoSwagger,
-  BaseResponseDtoSwagger,
-} from './swagger-common-types.dto';
 
 export function ApiSubmitCallbackForm() {
   return applyDecorators(
@@ -19,7 +15,7 @@ export function ApiSubmitCallbackForm() {
     ApiResponse({
       status: 201,
       description: 'Callback request successfully submitted',
-      type: BaseResponseDtoSwagger<FormSubmissionResponseDto>,
+      type: FormSubmissionResponseDto,
       schema: {
         example: {
           success: true,
@@ -63,7 +59,7 @@ export function ApiGetAllSubmissions() {
     ApiResponse({
       status: 200,
       description: 'Submissions retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<FormSubmissionResponseDto>,
+      type: FormSubmissionResponseDto,
       schema: {
         example: {
           success: true,
@@ -138,7 +134,7 @@ export function ApiGetSubmissionById() {
     ApiResponse({
       status: 200,
       description: 'Submission found',
-      type: BaseResponseDtoSwagger<FormSubmissionResponseDto>,
+      type: FormSubmissionResponseDto,
       schema: {
         example: {
           success: true,
@@ -195,7 +191,7 @@ export function ApiMarkAsProcessed() {
     ApiResponse({
       status: 200,
       description: 'Submission marked as processed',
-      type: BaseResponseDtoSwagger<FormSubmissionResponseDto>,
+      type: FormSubmissionResponseDto,
       schema: {
         example: {
           success: true,
@@ -247,13 +243,6 @@ export function ApiGetStats() {
     ApiResponse({
       status: 200,
       description: 'Statistics retrieved successfully',
-      type: BaseResponseDtoSwagger<{
-        total: number;
-        pending: number;
-        processed: number;
-        rejected: number;
-        today: number;
-      }>,
       schema: {
         example: {
           success: true,

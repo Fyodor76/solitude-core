@@ -8,7 +8,6 @@ import {
 } from '@nestjs/swagger';
 import { UserCreateDto } from 'src/users/application/dto/user-create.dto';
 import { UserResponseDto } from 'src/users/application/dto/user-response.dto';
-import { BaseResponseDtoSwagger } from './swagger-common-types.dto';
 
 export function ApiCreateUser() {
   return applyDecorators(
@@ -20,7 +19,7 @@ export function ApiCreateUser() {
     ApiResponse({
       status: 201,
       description: 'User successfully created',
-      type: BaseResponseDtoSwagger<UserResponseDto>,
+      type: UserResponseDto,
     }),
     ApiResponse({
       status: 409,
@@ -65,7 +64,7 @@ export function ApiGetUserByLogin() {
     ApiResponse({
       status: 200,
       description: 'User found',
-      type: BaseResponseDtoSwagger<UserResponseDto>,
+      type: UserResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -97,7 +96,7 @@ export function ApiGetUserById() {
     ApiResponse({
       status: 200,
       description: 'User found',
-      type: BaseResponseDtoSwagger<UserResponseDto>,
+      type: UserResponseDto,
     }),
     ApiResponse({
       status: 404,
@@ -120,7 +119,7 @@ export function ApiGetAllUsers() {
     ApiResponse({
       status: 200,
       description: 'List of users retrieved successfully',
-      type: [BaseResponseDtoSwagger<UserResponseDto>],
+      type: [UserResponseDto],
     }),
     ApiResponse({
       status: 401,
@@ -145,7 +144,7 @@ export function ApiUpdateUser() {
     ApiResponse({
       status: 200,
       description: 'User updated successfully',
-      type: BaseResponseDtoSwagger<UserResponseDto>,
+      type: UserResponseDto,
     }),
     ApiResponse({
       status: 404,

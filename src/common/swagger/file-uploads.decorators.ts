@@ -6,7 +6,6 @@ import {
   ApiParam,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { BaseResponseDtoSwagger } from './swagger-common-types.dto';
 
 export function ApiUploadFile() {
   return applyDecorators(
@@ -37,7 +36,6 @@ export function ApiUploadFile() {
     ApiResponse({
       status: 201,
       description: 'File successfully uploaded',
-      type: BaseResponseDtoSwagger<{ fileId: string; url: string }>,
       schema: {
         example: {
           success: true,
@@ -116,7 +114,6 @@ export function ApiDeleteFile() {
     ApiResponse({
       status: 200,
       description: 'File successfully deleted',
-      type: BaseResponseDtoSwagger<{ message: string }>,
       schema: {
         example: {
           success: true,
@@ -182,7 +179,6 @@ export function ApiGetFileUrl() {
     ApiResponse({
       status: 200,
       description: 'File URL generated successfully',
-      type: BaseResponseDtoSwagger<{ fileId: string; url: string }>,
       schema: {
         example: {
           success: true,

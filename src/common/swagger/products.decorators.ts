@@ -11,10 +11,6 @@ import {
   ProductVariationCreateDto,
 } from 'src/products/application/dto/product-create.dto';
 import { ProductResponseDto } from 'src/products/application/dto/product-response.dto';
-import {
-  BaseResponseDtoSwagger,
-  PaginatedResponseDtoSwagger,
-} from './swagger-common-types.dto';
 
 export function ApiCreateProduct() {
   return applyDecorators(
@@ -26,7 +22,7 @@ export function ApiCreateProduct() {
     ApiResponse({
       status: 201,
       description: 'Product successfully created',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -90,7 +86,7 @@ export function ApiSearchProducts() {
     ApiResponse({
       status: 200,
       description: 'Products retrieved successfully',
-      type: PaginatedResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -157,7 +153,7 @@ export function ApiGetProductById() {
     ApiResponse({
       status: 200,
       description: 'Product found',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -214,7 +210,7 @@ export function ApiGetProductBySlug() {
     ApiResponse({
       status: 200,
       description: 'Product found',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -285,7 +281,7 @@ export function ApiGetProductsByCategory() {
     ApiResponse({
       status: 200,
       description: 'Products retrieved successfully',
-      type: PaginatedResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -366,7 +362,7 @@ export function ApiGetProductsByBrand() {
     ApiResponse({
       status: 200,
       description: 'Products retrieved successfully',
-      type: PaginatedResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -422,7 +418,7 @@ export function ApiUpdateProduct() {
     ApiResponse({
       status: 200,
       description: 'Product updated successfully',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -492,7 +488,6 @@ export function ApiDeleteProduct() {
     ApiResponse({
       status: 200,
       description: 'Product deleted successfully',
-      type: BaseResponseDtoSwagger<{ message: string }>,
       schema: {
         example: {
           success: true,
@@ -546,7 +541,7 @@ export function ApiAddProductVariation() {
     ApiResponse({
       status: 201,
       description: 'Variation added successfully',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -651,7 +646,7 @@ export function ApiUpdateProductVariation() {
     ApiResponse({
       status: 200,
       description: 'Variation updated successfully',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,
@@ -755,7 +750,7 @@ export function ApiDeleteProductVariation() {
     ApiResponse({
       status: 200,
       description: 'Variation deleted successfully',
-      type: BaseResponseDtoSwagger<ProductResponseDto>,
+      type: ProductResponseDto,
       schema: {
         example: {
           success: true,

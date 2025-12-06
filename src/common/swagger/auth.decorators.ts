@@ -7,7 +7,6 @@ import {
 } from '@nestjs/swagger';
 import { AuthResponseDto } from 'src/auth/dto/auth-response.dto';
 import { AuthDto, RefreshTokenDto } from 'src/auth/dto/auth.dto';
-import { BaseResponseDtoSwagger } from './swagger-common-types.dto';
 
 export function ApiLogin() {
   return applyDecorators(
@@ -19,7 +18,7 @@ export function ApiLogin() {
     ApiResponse({
       status: 201,
       description: 'Successfully authenticated',
-      type: BaseResponseDtoSwagger<AuthResponseDto>,
+      type: AuthResponseDto,
     }),
     ApiResponse({
       status: 401,

@@ -8,10 +8,6 @@ import {
   ProductAttributeResponseDto,
   AttributeValueResponseDto,
 } from 'src/product-attributes/application/dto/attribute-response.dto';
-import {
-  BaseResponseDtoSwagger,
-  BaseResponseArrayDtoSwagger,
-} from './swagger-common-types.dto';
 
 export function ApiCreateProductAttribute() {
   return applyDecorators(
@@ -23,7 +19,7 @@ export function ApiCreateProductAttribute() {
     ApiResponse({
       status: 201,
       description: 'Product attribute successfully created',
-      type: BaseResponseDtoSwagger<ProductAttributeResponseDto>,
+      type: ProductAttributeResponseDto,
       schema: {
         example: {
           success: true,
@@ -96,7 +92,7 @@ export function ApiCreateAttributeValue() {
     ApiResponse({
       status: 201,
       description: 'Attribute value successfully created',
-      type: BaseResponseDtoSwagger<AttributeValueResponseDto>,
+      type: AttributeValueResponseDto,
       schema: {
         example: {
           success: true,
@@ -149,7 +145,7 @@ export function ApiGetAllProductAttributes() {
     ApiResponse({
       status: 200,
       description: 'Product attributes retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<ProductAttributeResponseDto>,
+      type: ProductAttributeResponseDto,
       schema: {
         example: {
           success: true,
@@ -218,7 +214,7 @@ export function ApiGetProductAttributeById() {
     ApiResponse({
       status: 200,
       description: 'Product attribute found',
-      type: BaseResponseDtoSwagger<ProductAttributeResponseDto>,
+      type: ProductAttributeResponseDto,
       schema: {
         example: {
           success: true,
@@ -277,7 +273,7 @@ export function ApiGetProductAttributeBySlug() {
     ApiResponse({
       status: 200,
       description: 'Product attribute found',
-      type: BaseResponseDtoSwagger<ProductAttributeResponseDto>,
+      type: ProductAttributeResponseDto,
       schema: {
         example: {
           success: true,
@@ -336,7 +332,7 @@ export function ApiGetProductAttributesByType() {
     ApiResponse({
       status: 200,
       description: 'Product attributes retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<ProductAttributeResponseDto>,
+      type: ProductAttributeResponseDto,
       schema: {
         example: {
           success: true,
@@ -384,7 +380,7 @@ export function ApiGetAttributeValues() {
     ApiResponse({
       status: 200,
       description: 'Attribute values retrieved successfully',
-      type: BaseResponseArrayDtoSwagger<AttributeValueResponseDto>,
+      type: AttributeValueResponseDto,
       schema: {
         example: {
           success: true,
@@ -442,7 +438,7 @@ export function ApiUpdateProductAttribute() {
     ApiResponse({
       status: 200,
       description: 'Product attribute updated successfully',
-      type: BaseResponseDtoSwagger<ProductAttributeResponseDto>,
+      type: ProductAttributeResponseDto,
       schema: {
         example: {
           success: true,
@@ -505,7 +501,6 @@ export function ApiDeleteProductAttribute() {
     ApiResponse({
       status: 200,
       description: 'Product attribute deleted successfully',
-      type: BaseResponseDtoSwagger<{ message: string }>,
       schema: {
         example: {
           success: true,
@@ -559,7 +554,7 @@ export function ApiUpdateAttributeValue() {
     ApiResponse({
       status: 200,
       description: 'Attribute value updated successfully',
-      type: BaseResponseDtoSwagger<AttributeValueResponseDto>,
+      type: AttributeValueResponseDto,
       schema: {
         example: {
           success: true,
@@ -606,7 +601,6 @@ export function ApiDeleteAttributeValue() {
     ApiResponse({
       status: 200,
       description: 'Attribute value deleted successfully',
-      type: BaseResponseDtoSwagger<{ message: string }>,
       schema: {
         example: {
           success: true,
